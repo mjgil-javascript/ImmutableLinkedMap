@@ -2,8 +2,6 @@ import { Map, Collection, Iterable } from 'immutable'
 import { Iterator, iteratorDone, iteratorValue } from './Iterator'
 import assertNotInfinite from './utils/assertNotInfinite'
 
-console.log('Iterable', Iterable)
-
 const notImplementedError = (name) => {throw new Error(name + ': Method Not Implemented')}
 
 // subclassing Collection.Keyed to get iterable methods to work
@@ -61,8 +59,12 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
     return updateValueInItemsById(this, valueId, value)
   }
 
-  remove() {
-    notImplementedError('remove')
+  remove(valueId) {
+    const item = this._itemsById.get(valueId)
+    if (item) {
+      return deleteItemFromList(this, item)
+    }
+    return this
   }
 
   // List Methods
@@ -237,7 +239,7 @@ const DELETE = 'delete';
 const IS_DOUBLY_LINKED_LIST_SENTINEL = '@@__IMMUTABLE_DOUBLY_LINKED_LIST__@@';
 
 export var IndexedDoublyLinkedListPrototype = IndexedDoublyLinkedList.prototype
-IndexedDoublyLinkedListPrototype['DELETE'] = IndexedDoublyLinkedListPrototype.remove;
+IndexedDoublyLinkedListPrototype[DELETE] = IndexedDoublyLinkedListPrototype.remove;
 IndexedDoublyLinkedListPrototype[IS_DOUBLY_LINKED_LIST_SENTINEL] = true;
 
 
@@ -271,6 +273,39 @@ const makeListItem = (value, key) => {
   return item
 }
 
+const deleteItemFromList = (dlList, item) => {
+  const itemId = item.get('id')
+  let newItemsById = dlList._itemsById.delete(itemId)
+
+  const itemNext = item.get('nextItemId')
+  const itemPrev = item.get('prevItemId')
+
+  console.log('itemNext', itemNext)
+  console.log('itemPrev', itemPrev)
+  // update the previous item's 'next' field
+  // to point to the deleted item's 'next' field
+  if (itemPrev) newItemsById = setFieldOnItemInMap(newItemsById, itemPrev, 'nextItemId', itemNext)
+
+  // update the next item's 'prev' field
+  // to point to the deleted item's 'prev' field
+  if (itemNext) newItemsById = setFieldOnItemInMap(newItemsById, itemNext, 'prevItemId', itemPrev)
+
+
+  // handle deleted cursor
+
+  // update _lastItemId pointer
+  let newLastItemId = dlList._lastItemId === itemId ? itemPrev : dlList._lastItemId
+
+  // update _firstItemId pointer
+  let newFirstItemId = dlList._firstItemId === itemId ? itemNext : dlList._firstItemId
+  
+  // update _currentItemId pointer
+  let newCurrentItemId = dlList._currentItemId === itemId ? undefined : dlList._currentItemId
+  
+  return makeIndexedDoublyLinkedList(newItemsById, newFirstItemId, newLastItemId, 
+    newCurrentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
+}
+
 const addNewItemAtEndOfList = (itemsById, prevItemId, item) => {
   const itemId = item.get('id')
   let newItemsById = itemsById.setIn([prevItemId, 'nextItemId'], itemId)
@@ -302,6 +337,13 @@ const pushItemOnList = (item, dlList) => {
   return dlList
 }
 
+
+// itemsById methods
+const setFieldOnItemInMap = (map, itemId, fieldName, fieldValue) => {
+  return map.setIn([itemId, fieldName], fieldValue)
+}
+
+// item methods
 const setNextItemIdOnItem = (nextItemId, item) => {
   return item.set('nextItemId', nextItemId)
 }

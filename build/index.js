@@ -99,12 +99,16 @@
     );
   }
 
-  console.log('Iterable', immutable.Iterable)
-
   var notImplementedError = function(name)  {throw new Error(name + ': Method Not Implemented')}
+
   createClass(IndexedDoublyLinkedList, immutable.Collection.Keyed);
     // @pragma Construction
 
+    // this is a custom constructor that is compiled to a function
+    // with the declassify.js file in /resources/declassify.js
+    // taken from: https://github.com/facebook/immutable-js/blob/0f88549e3ceeb6a8834709b095105aa5e2922b63/resources/declassify.js
+    // look at build to see final output after this and es6-transpilation
+    // WARNING: This does not compile with babel
     function IndexedDoublyLinkedList(value) {
       var valueIsNull = value === null || value === undefined
       var emptyList = emptyIndexedDoublyLinkedList()
@@ -119,6 +123,7 @@
       return newList
     }
 
+    // like Immutable.Map
     IndexedDoublyLinkedList.of = function() {var SLICE$0 = Array.prototype.slice;var keyValues = SLICE$0.call(arguments, 0);
       // 1, 'a', 2, 'b', 3, '4'
       var newList = emptyIndexedDoublyLinkedList()
@@ -148,8 +153,12 @@
       return updateValueInItemsById(this, valueId, value)
     };
 
-    IndexedDoublyLinkedList.prototype.remove = function() {
-      notImplementedError('remove')
+    IndexedDoublyLinkedList.prototype.remove = function(valueId) {
+      var item = this._itemsById.get(valueId)
+      if (item) {
+        return deleteItemFromList(this, item)
+      }
+      return this
     };
 
     // List Methods
@@ -319,12 +328,16 @@
 
   }
 
+  // Used for setting prototype methods that IE8 chokes on.
+  var DELETE = 'delete';
   var IS_DOUBLY_LINKED_LIST_SENTINEL = '@@__IMMUTABLE_DOUBLY_LINKED_LIST__@@';
 
   var IndexedDoublyLinkedListPrototype = IndexedDoublyLinkedList.prototype
-  IndexedDoublyLinkedListPrototype['DELETE'] = IndexedDoublyLinkedListPrototype.remove;
+  IndexedDoublyLinkedListPrototype[DELETE] = IndexedDoublyLinkedListPrototype.remove;
   IndexedDoublyLinkedListPrototype[IS_DOUBLY_LINKED_LIST_SENTINEL] = true;
 
+
+  // adding to Prototype so that subclassing works
   var MapPrototype = immutable.Map.prototype
   IndexedDoublyLinkedListPrototype.setIn = MapPrototype.setIn;
   IndexedDoublyLinkedListPrototype.deleteIn =
@@ -352,6 +365,39 @@
     })
 
     return item
+  }
+
+  var deleteItemFromList = function(dlList, item)  {
+    var itemId = item.get('id')
+    var newItemsById = dlList._itemsById.delete(itemId)
+
+    var itemNext = item.get('nextItemId')
+    var itemPrev = item.get('prevItemId')
+
+    console.log('itemNext', itemNext)
+    console.log('itemPrev', itemPrev)
+    // update the previous item's 'next' field
+    // to point to the deleted item's 'next' field
+    if (itemPrev) newItemsById = setFieldOnItemInMap(newItemsById, itemPrev, 'nextItemId', itemNext)
+
+    // update the next item's 'prev' field
+    // to point to the deleted item's 'prev' field
+    if (itemNext) newItemsById = setFieldOnItemInMap(newItemsById, itemNext, 'prevItemId', itemPrev)
+
+
+    // handle deleted cursor
+
+    // update _lastItemId pointer
+    var newLastItemId = dlList._lastItemId === itemId ? itemPrev : dlList._lastItemId
+
+    // update _firstItemId pointer
+    var newFirstItemId = dlList._firstItemId === itemId ? itemNext : dlList._firstItemId
+    
+    // update _currentItemId pointer
+    var newCurrentItemId = dlList._currentItemId === itemId ? undefined : dlList._currentItemId
+    
+    return makeIndexedDoublyLinkedList(newItemsById, newFirstItemId, newLastItemId, 
+      newCurrentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
   }
 
   var addNewItemAtEndOfList = function(itemsById, prevItemId, item)  {
@@ -383,6 +429,12 @@
     }
 
     return dlList
+  }
+
+
+  // itemsById methods
+  var setFieldOnItemInMap = function(map, itemId, fieldName, fieldValue)  {
+    return map.setIn([itemId, fieldName], fieldValue)
   }
 
   var setPrevItemIdOnItem = function(prevItemId, item)  {

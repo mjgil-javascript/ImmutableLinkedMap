@@ -29,3 +29,5 @@ console.log('reduce', dlList.reduce((reduction, val) => reduction + val.get('nam
 console.log('reduceRight', dlList.reduceRight((reduction, val) => reduction + val.get('name'), ''))
 console.log('.of', IndexedDoublyLinkedList.of(1, 'a', 2, 'b', 3, 'c', 4, 'd'))
 console.log('.toMap', dlList.toMap())
+console.log('deleteFirst', dlList.delete(1).toJS())
+console.log('deleteSecond', dlList.delete(2).toJS())
