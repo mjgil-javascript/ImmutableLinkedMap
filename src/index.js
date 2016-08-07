@@ -3,6 +3,7 @@ import { Iterator, iteratorDone, iteratorValue } from './Iterator'
 import assertNotInfinite from './utils/assertNotInfinite'
 
 const notImplementedError = (name) => {throw new Error(name + ': Method Not Implemented')}
+const notItemNotFoundError = (id) => {throw new Error('Item with id: ' + id + ' was not found')}
 
 // subclassing Collection.Keyed to get iterable methods to work
 // methods: https://github.com/facebook/immutable-js/blob/0f88549e3ceeb6a8834709b095105aa5e2922b63/src/IterableImpl.js
@@ -117,11 +118,11 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
     notImplementedError('getBetween')
   }
 
-  getNext() {
+  getAfter(valueId) {
     notImplementedError('getNext')
   }
 
-  getPrev() {
+  getBefore(valueId) {
     notImplementedError('getPrev')
   }
 
@@ -131,24 +132,44 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
 
   // moves to next
   next() {
-    notImplementedError('moveToNext')
+    if (!this._currentItemId) return this
+    const item = this._itemsById.get(this._currentItemId)
+    if (item) {
+      const nextItemId = item.get('nextItemId')
+      return updateCurrentItemId(this, nextItemId)
+    }
+    else {
+      throw new Error('._currentItemId points to id that does not exist: ' + this._currentItemId)
+    }
   }
 
   // moves to prev
   prev() {
-    notImplementedError('moveToPrev')
+    if (!this._currentItemId) return this
+    const item = this._itemsById.get(this._currentItemId)
+    if (item) {
+      const prevItemId = item.get('prevItemId')
+      return updateCurrentItemId(this, prevItemId)
+    }
+    else {
+      throw new Error('._currentItemId points to id that does not exist: ' + this._currentItemId)
+    }
   }
 
   moveTo(valueId) {
-    notImplementedError('moveTo')
+    const item = this._itemsById.get(valueId)
+    if (item) return updateCurrentItemId(this, valueId)
+    return this
   }
 
   moveToStart() {
-    notImplementedError('moveToStart')
+    if (!this._firstItemId) return this
+    return updateCurrentItemId(this, this._firstItemId)
   }
 
   moveToEnd() {
-    notImplementedError('moveToEnd')
+    if (!this._lastItemId) return this
+    return updateCurrentItemId(this, this._lastItemId)
   }
 
   clear() {
@@ -215,6 +236,11 @@ const updateValueInItemsById = (dlList, itemId, value) => {
   const newItemsById = dlList._itemsById.set(itemId, newItem)
   return makeIndexedDoublyLinkedList(newItemsById, dlList._firstItemId, dlList._lastItemId, 
     dlList._currentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
+}
+
+const updateCurrentItemId = (dlList, currentItemId) => {
+  return makeIndexedDoublyLinkedList(dlList._itemsById, dlList._firstItemId, dlList._lastItemId, 
+    currentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
 }
 
 const iterateList = (dlList, reverse) => {

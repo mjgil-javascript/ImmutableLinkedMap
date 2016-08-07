@@ -100,7 +100,6 @@
   }
 
   var notImplementedError = function(name)  {throw new Error(name + ': Method Not Implemented')}
-
   createClass(IndexedDoublyLinkedList, immutable.Collection.Keyed);
     // @pragma Construction
 
@@ -225,24 +224,44 @@
 
     // moves to next
     IndexedDoublyLinkedList.prototype.next = function() {
-      notImplementedError('moveToNext')
+      if (!this._currentItemId) return this
+      var item = this._itemsById.get(this._currentItemId)
+      if (item) {
+        var nextItemId = item.get('nextItemId')
+        return updateCurrentItemId(this, nextItemId)
+      }
+      else {
+        throw new Error('._currentItemId points to id that does not exist: ' + this._currentItemId)
+      }
     };
 
     // moves to prev
     IndexedDoublyLinkedList.prototype.prev = function() {
-      notImplementedError('moveToPrev')
+      if (!this._currentItemId) return this
+      var item = this._itemsById.get(this._currentItemId)
+      if (item) {
+        var prevItemId = item.get('prevItemId')
+        return updateCurrentItemId(this, prevItemId)
+      }
+      else {
+        throw new Error('._currentItemId points to id that does not exist: ' + this._currentItemId)
+      }
     };
 
     IndexedDoublyLinkedList.prototype.moveTo = function(valueId) {
-      notImplementedError('moveTo')
+      var item = this._itemsById.get(valueId)
+      if (item) return updateCurrentItemId(this, valueId)
+      return this
     };
 
     IndexedDoublyLinkedList.prototype.moveToStart = function() {
-      notImplementedError('moveToStart')
+      if (!this._firstItemId) return this
+      return updateCurrentItemId(this, this._firstItemId)
     };
 
     IndexedDoublyLinkedList.prototype.moveToEnd = function() {
-      notImplementedError('moveToEnd')
+      if (!this._lastItemId) return this
+      return updateCurrentItemId(this, this._lastItemId)
     };
 
     IndexedDoublyLinkedList.prototype.clear = function() {
@@ -309,6 +328,11 @@
     var newItemsById = dlList._itemsById.set(itemId, newItem)
     return makeIndexedDoublyLinkedList(newItemsById, dlList._firstItemId, dlList._lastItemId, 
       dlList._currentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
+  }
+
+  var updateCurrentItemId = function(dlList, currentItemId)  {
+    return makeIndexedDoublyLinkedList(dlList._itemsById, dlList._firstItemId, dlList._lastItemId, 
+      currentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
   }
 
   var iterateList = function(dlList, reverse)  {
