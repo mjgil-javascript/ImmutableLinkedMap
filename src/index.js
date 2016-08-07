@@ -134,7 +134,6 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
       obj = iter.next()
     }
     return null;
-    // notImplementedError('__iterate')
   }
 
   __ensureOwner() {
@@ -198,6 +197,16 @@ const makeListItem = (value, key) => {
   return item
 }
 
+const addNewItemAtEndOfList = (itemsById, prevItemId, item) => {
+  const itemId = item.get('id')
+  let newItemsById = itemsById.setIn([prevItemId, 'nextItemId'], itemId)
+  
+  const newItem = setPrevItemIdOnItem(prevItemId, item)
+  newItemsById = newItemsById.set(itemId, item)
+  
+  return newItemsById
+}
+
 const pushItemOnList = (item, dlList) => {
   const {_firstItemId, _lastItemId, _itemsById} = dlList
   const itemId = item.get('id')
@@ -206,6 +215,14 @@ const pushItemOnList = (item, dlList) => {
     const newItemsById = _itemsById.set(itemId, item)
     return makeIndexedDoublyLinkedList(newItemsById, itemId, itemId, 
       dlList._currentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
+  }
+  else if (_lastItemId) {
+    let newItemsById = addNewItemAtEndOfList(_itemsById, _lastItemId, item)
+    return makeIndexedDoublyLinkedList(newItemsById, _firstItemId, itemId, 
+      dlList._currentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
+  }
+  else {
+    throw new Error('End of List Not Found')
   }
 
   return dlList
@@ -244,33 +261,7 @@ const updateIndexedDoublyLinkedList = (dlList, k, v) => {
 
 }
 
-/*
-constructor
-static of
-toString
-get
-set
-setIn
-remove
-
-swap
-insertAfter
-insertBefore
-getBetween
-deleteBetween
-
-moveToStart
-moveToEnd
-moveToNext
-moveToPrev
-moveTo
-
-push
-pop
-unshift
-shift
-clear
-
+/* Unimplemented Methods
 merge
 mergeIn
 mergeWith
@@ -287,8 +278,4 @@ withMutations
 asMutable
 asImmutable
 wasAltered
-
-__iterator
-__iterate
-__ensureOwner
 */

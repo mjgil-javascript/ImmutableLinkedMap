@@ -158,7 +158,6 @@
         obj = iter.next()
       }
       return null;
-      // notImplementedError('__iterate')
     };
 
     IndexedDoublyLinkedList.prototype.__ensureOwner = function() {
@@ -220,6 +219,16 @@
     return item
   }
 
+  var addNewItemAtEndOfList = function(itemsById, prevItemId, item)  {
+    var itemId = item.get('id')
+    var newItemsById = itemsById.setIn([prevItemId, 'nextItemId'], itemId)
+    
+    var newItem = setPrevItemIdOnItem(prevItemId, item)
+    newItemsById = newItemsById.set(itemId, item)
+    
+    return newItemsById
+  }
+
   var pushItemOnList = function(item, dlList)  {
     var _firstItemId = dlList._firstItemId, _lastItemId = dlList._lastItemId, _itemsById = dlList._itemsById
     var itemId = item.get('id')
@@ -229,8 +238,20 @@
       return makeIndexedDoublyLinkedList(newItemsById, itemId, itemId, 
         dlList._currentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
     }
+    else if (_lastItemId) {
+      var newItemsById$0 = addNewItemAtEndOfList(_itemsById, _lastItemId, item)
+      return makeIndexedDoublyLinkedList(newItemsById$0, _firstItemId, itemId, 
+        dlList._currentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
+    }
+    else {
+      throw new Error('End of List Not Found')
+    }
 
     return dlList
+  }
+
+  var setPrevItemIdOnItem = function(prevItemId, item)  {
+    return item.set('prevItemId', prevItemId)
   }
 
   // factory pattern
