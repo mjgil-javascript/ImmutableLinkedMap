@@ -21,6 +21,7 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
     if (valueIsNull) return emptyList
     if (isIndexedDoublyLinkedList(value)) return value
 
+    // TODO: use with mutations
     let newList = emptyList
     const iter = Iterable.Keyed(value)
     assertNotInfinite(iter.size)
@@ -81,8 +82,19 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
     return this.remove(this._lastItemId)
   }
 
-  unshift() {
-    notImplementedError('unshift')
+  prepend(value, key) {
+    const item = makeListItem(value, key)
+    return prependItemToList(item, this)
+  }
+
+  // TODO: use with mutations
+  unshift(value) {
+    let newList = this
+    const iter = Iterable.Keyed(value)
+    assertNotInfinite(iter.size)
+    iter.forEach((v, k) => newList = newList.prepend(v, k))
+
+    return newList
   }
 
   shift() {
@@ -199,7 +211,7 @@ const getItemById = (itemsById, itemId) => {
 
 const updateValueInItemsById = (dlList, itemId, value) => {
   const item = dlList._itemsById.get(itemId)
-  const newItem = setValueOnItem(value, item)
+  const newItem = setFieldOnItem(item, 'value', value)
   const newItemsById = dlList._itemsById.set(itemId, newItem)
   return makeIndexedDoublyLinkedList(newItemsById, dlList._firstItemId, dlList._lastItemId, 
     dlList._currentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
@@ -305,11 +317,21 @@ const deleteItemFromList = (dlList, item) => {
     newCurrentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
 }
 
-const addNewItemAtEndOfList = (itemsById, prevItemId, item) => {
+const addNewItemAtEndOfList = (itemsById, lastItemId, item) => {
   const itemId = item.get('id')
-  let newItemsById = itemsById.setIn([prevItemId, 'nextItemId'], itemId)
+  let newItemsById = itemsById.setIn([lastItemId, 'nextItemId'], itemId)
   
-  const newItem = setPrevItemIdOnItem(prevItemId, item)
+  const newItem = setFieldOnItem(item, 'prevItemId', lastItemId)
+  newItemsById = newItemsById.set(itemId, newItem)
+  
+  return newItemsById
+}
+
+const addNewItemAtFrontOfList = (itemsById, firstItemId, item) => {
+  const itemId = item.get('id')
+  let newItemsById = itemsById.setIn([firstItemId, 'prevItemId'], itemId)
+  
+  const newItem = setFieldOnItem(item, 'nextItemId', firstItemId)
   newItemsById = newItemsById.set(itemId, newItem)
   
   return newItemsById
@@ -336,6 +358,27 @@ const pushItemOnList = (item, dlList) => {
   return dlList
 }
 
+const prependItemToList = (item, dlList) => {
+  const {_firstItemId, _lastItemId, _itemsById} = dlList
+  const itemId = item.get('id')
+  // handle empty list
+  if (!_firstItemId && !_lastItemId) {
+    const newItemsById = _itemsById.set(itemId, item)
+    return makeIndexedDoublyLinkedList(newItemsById, itemId, itemId, 
+      itemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
+  }
+  else if (_firstItemId) {
+    let newItemsById = addNewItemAtFrontOfList(_itemsById, _firstItemId, item)
+    return makeIndexedDoublyLinkedList(newItemsById, itemId, _lastItemId, 
+      dlList._currentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
+  }
+  else {
+    throw new Error('End of List Not Found')
+  }
+
+  return dlList
+}
+
 
 // itemsById methods
 const setFieldOnItemInMap = (map, itemId, fieldName, fieldValue) => {
@@ -343,16 +386,8 @@ const setFieldOnItemInMap = (map, itemId, fieldName, fieldValue) => {
 }
 
 // item methods
-const setNextItemIdOnItem = (nextItemId, item) => {
-  return item.set('nextItemId', nextItemId)
-}
-
-const setPrevItemIdOnItem = (prevItemId, item) => {
-  return item.set('prevItemId', prevItemId)
-}
-
-const setValueOnItem = (value, item) => {
-  return item.set('value', value)
+const setFieldOnItem = (item, fieldName, fieldValue) => {
+  return item.set(fieldName, fieldValue)
 }
 
 // factory pattern
