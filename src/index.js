@@ -22,17 +22,17 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
     return newList
   }
 
-  // static of() {
-  //   const argArray = [...arguments]
-  //   const lastArg = argArray[argArray.length]
-  //   if (typeof lastArg === 'function') {
-  //     argArray.pop()
-  //     return this(argArray, idFn)
-  //   }
-  //   else {
-  //     throw new Error('Last Argument should be id extraction function: ' + argArray.toString());
-  //   }
-  // }
+  static of(...keyValues) {
+    // 1, 'a', 2, 'b', 3, '4'
+    let newList = emptyIndexedDoublyLinkedList()
+    for (var i = 0; i < keyValues.length; i += 2) {
+      if (i + 1 >= keyValues.length) {
+        throw new Error('Missing value for key: ' + keyValues[i]);
+      }
+      newList = newList.push(keyValues[i + 1], keyValues[i]);
+    }
+    return newList
+  }
 
   toString() {
     return this.__toString('Doubly Linked List [', ']')

@@ -106,7 +106,6 @@
     // @pragma Construction
 
     function IndexedDoublyLinkedList(value) {
-      console.log('constructor', value)
       var valueIsNull = value === null || value === undefined
       var emptyList = emptyIndexedDoublyLinkedList()
       if (valueIsNull) return emptyList
@@ -120,17 +119,17 @@
       return newList
     }
 
-    // static of() {
-    //   const argArray = [...arguments]
-    //   const lastArg = argArray[argArray.length]
-    //   if (typeof lastArg === 'function') {
-    //     argArray.pop()
-    //     return this(argArray, idFn)
-    //   }
-    //   else {
-    //     throw new Error('Last Argument should be id extraction function: ' + argArray.toString());
-    //   }
-    // }
+    IndexedDoublyLinkedList.of = function() {var SLICE$0 = Array.prototype.slice;var keyValues = SLICE$0.call(arguments, 0);
+      // 1, 'a', 2, 'b', 3, '4'
+      var newList = emptyIndexedDoublyLinkedList()
+      for (var i = 0; i < keyValues.length; i += 2) {
+        if (i + 1 >= keyValues.length) {
+          throw new Error('Missing value for key: ' + keyValues[i]);
+        }
+        newList = newList.push(keyValues[i + 1], keyValues[i]);
+      }
+      return newList
+    };
 
     IndexedDoublyLinkedList.prototype.toString = function() {
       return this.__toString('Doubly Linked List [', ']')
