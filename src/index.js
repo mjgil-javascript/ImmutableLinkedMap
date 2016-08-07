@@ -105,9 +105,60 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
   swap(valueId1, valueId2) {
     const item1 = this._itemsById.get(valueId1)
     const item2 = this._itemsById.get(valueId2)
+    
     if (!item1) itemNotFoundError(valueId1)
     if (!item2) itemNotFoundError(valueId2)
-    return swapItemsInList(this, item1, item2)
+
+    const item1Next = item1.get('nextItemId')
+    const item1Prev = item1.get('prevItemId')
+    const item1Value = item1.get('value')
+    const item2Next = item2.get('nextItemId')
+    const item2Prev = item2.get('prevItemId')
+    const item2Value = item2.get('value')
+    
+
+    if (valueId1 === this._firstItemId) {
+      let newList = this.remove(valueId2)
+      newList = newList.prepend(item2.get('value'), valueId2)
+      newList = newList.remove(valueId1)
+      if (item2Next) return newList.insertBefore(item2Next, item1Value, valueId1)
+      return newList.push(item1Value, valueId1)
+    }
+    else if (valueId2 === this._firstItemId) {
+      let newList = this.remove(valueId1)
+      newList = newList.prepend(item1Value, valueId1)
+      newList = newList.remove(valueId2)
+      if (item1Next) return newList.insertBefore(item1Next, item2Value, valueId2)
+      return newList.push(item2Value, valueId2)
+    }
+    else if (valueId1 === this._lastItemId) {
+      let newList = this.remove(valueId2)
+      newList = newList.push(item2.get('value'), valueId2)
+      newList = newList.remove(valueId1)
+      if (item2Prev) return newList.insertAfter(item2Prev, item1Value, valueId1)
+      return newList.prepend(item1Value, valueId1)
+    }
+    else if (valueId2 === this._lastItemId) {
+      let newList = this.remove(valueId1)
+      newList = newList.push(item1Value, valueId1)
+      newList = newList.remove(valueId2)
+      if (item1Prev) return newList.insertAfter(item1Prev, item2Value, valueId2)
+      return newList.prepend(item2Value, valueId2)
+    }
+    else if (item1.get('nextItemId') !== valueId2) {
+      let newList = this.remove(valueId2)
+      newList = newList.insertBefore(item1.get('nextItemId'), item2.get('value'), valueId2)
+      newList = newList.remove(valueId1)
+      return newList.insertAfter(item2.get('prevItemId'), item1Value, valueId1)
+    }
+    else if (item2.get('nextItemId') !== valueId1) {
+      let newList = this.remove(valueId1)
+      newList = newList.insertBefore(item2.get('nextItemId'), item1Value, valueId1)
+      newList = newList.remove(valueId2)
+      return newList.insertAfter(item1.get('prevItemId'), item2.get('value'), valueId2)
+    }
+
+    throw new Error('Swap case not handled -- ' + valueId1 + ' ' + valueId2)
   }
 
   insertAfter(afterId, value, key) {
@@ -249,49 +300,6 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
 
 const getItemById = (itemsById, itemId) => {
   return itemsById.get(itemId)
-}
-
-const swapItemsInList = (dlList, item1, item2) => {
-  // const item1Id = item1.get('id')
-  // const item2Id = item2.get('id')
-
-  // const nextField1 = item1.get('nextItemId')
-  // const prevField1 = item1.get('prevItemId')
-
-  // const nextField2 = item2.get('nextItemId')
-  // const prevField2 = item2.get('prevItemId')
-
-  // let newItem1 = setFieldOnItem(item1, 'nextItemId', nextField2)
-  // newItem1 = setFieldOnItem(item1, 'prevItemId', prevField2)
-
-  // let newItem2 = setFieldOnItem(item1, 'nextItemId', nextField1)
-  // newItem2 = setFieldOnItem(item1, 'prevItemId', prevField1)
-
-  // let newItemsById = dlList._itemsById
-  // newItemsById = newItemsById.set(item1.get('id'), newItem1)
-  // newItemsById = newItemsById.set(item2.get('id'), newItem2)
-
-  // if (nextField1 !== item2Id && newItemsById.get(nextField1)) newItemsById = setFieldOnItemInMap(newItemsById, nextField1, 'prevItemId', item2Id)
-  // if (nextField2 !== item1Id && newItemsById.get(nextField2)) newItemsById = setFieldOnItemInMap(newItemsById, nextField2, 'prevItemId', item1Id)
-  
-  // if (prevField1 !== item2Id && newItemsById.get(prevField1)) newItemsById = setFieldOnItemInMap(newItemsById, prevField1, 'nextItemId', item2Id)
-  // if (prevField2 !== item1Id && newItemsById.get(prevField2)) newItemsById = setFieldOnItemInMap(newItemsById, prevField2, 'nextItemId', item1Id)
-
-
-  // update first pointer
-  let newFirstItemId = dlList._firstItemId
-  newFirstItemId = dlList._firstItemId === item1Id ? item2Id : newFirstItemId
-  newFirstItemId = dlList._firstItemId === item2Id ? item1Id : newFirstItemId
-  console.log('first', dlList._firstItemId, newFirstItemId)
-
-  // update last pointer
-  let newLastItemId = dlList._lastItemId
-  newLastItemId = dlList._lastItemId === item1Id ? item2Id : newLastItemId
-  newLastItemId = dlList._lastItemId === item2Id ? item1Id : newLastItemId
-  console.log('last', dlList._lastItemId, newLastItemId)
-
-  return makeIndexedDoublyLinkedList(newItemsById, newFirstItemId, newLastItemId, 
-    dlList._currentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
 }
 
 const insertItemBeforeItem = (dlList, beforeItem, newItem) => {
