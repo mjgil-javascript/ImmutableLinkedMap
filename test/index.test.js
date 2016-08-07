@@ -16,7 +16,7 @@ dlList = addToList(value4, dlList)
 
 console.log('dlList', dlList)
 console.log('toString', dlList.toString())
-console.log('map', dlList.map((val) => {return 'malcom'}))
+console.log('map', dlList.map((val) => 'malcom')._itemsById) 
 console.log('forEach', dlList.forEach((val) => console.log(val.toJS())))
 for (var i of dlList) { console.log(i) }
 console.log('get', dlList.get(1))
@@ -25,3 +25,4 @@ console.log('setIn', dlList.setIn([1], 'malcom2'))
 console.log('update', dlList.update(2, (val) => val.get('name')))
 console.log('updateIn', dlList.updateIn([2, 'name'], (val) => val + val))
 console.log('clear', dlList.clear())
+console.log('reduce', dlList.reduce((reduction, val) => reduction + val.get('name'), ''))

@@ -79,27 +79,45 @@
     return { value: undefined, done: true };
   }
 
-  console.log('Map', immutable.Map)
+  /**
+   *  Copyright (c) 2014-2015, Facebook, Inc.
+   *  All rights reserved.
+   *
+   *  This source code is licensed under the BSD-style license found in the
+   *  LICENSE file in the root directory of this source tree. An additional grant
+   *  of patent rights can be found in the PATENTS file in the same directory.
+   */
+
+  function invariant(condition, error) {
+    if (!condition) throw new Error(error);
+  }
+
+  function assertNotInfinite(size) {
+    invariant(
+      size !== Infinity,
+      'Cannot perform this action with an infinite size.'
+    );
+  }
+
+  console.log('Iterable', immutable.Iterable)
 
   var notImplementedError = function(name)  {throw new Error(name + ': Method Not Implemented')}
-  createClass(IndexedDoublyLinkedList, immutable.Collection.Indexed);
+  createClass(IndexedDoublyLinkedList, immutable.Collection.Keyed);
     // @pragma Construction
 
-    function IndexedDoublyLinkedList(value, idFn) {
+    function IndexedDoublyLinkedList(value) {
+      console.log('constructor', value)
       var valueIsNull = value === null || value === undefined
       var emptyList = emptyIndexedDoublyLinkedList()
-      // if (valueIsNull) return emptyList
-      // if (isIndexedDoublyLinkedList(value)) return value
+      if (valueIsNull) return emptyList
+      if (isIndexedDoublyLinkedList(value)) return value
 
+      var newList = emptyList
+      var iter = immutable.Iterable.Keyed(value)
+      assertNotInfinite(iter.size)
+      iter.forEach(function(v, k)  {return newList = newList.push(v, k)})
 
-      return emptyList
-      // return valueIsNull ? emptyList :
-      //   isMap(value) && !isOrdered(value) ? value :
-      //   emptyMap().withMutations(map => {
-      //     var iter = KeyedIterable(value);
-      //     assertNotInfinite(iter.size);
-      //     iter.forEach((v, k) => map.set(k, v));
-      //   });
+      return newList
     }
 
     // static of() {
@@ -127,6 +145,7 @@
       return notSetValue
     };
 
+    // mutates underlying
     IndexedDoublyLinkedList.prototype.set = function(valueId, value) {
       return updateValueInItemsById(this, valueId, value)
     };
@@ -342,7 +361,7 @@
     var newItemsById = itemsById.setIn([prevItemId, 'nextItemId'], itemId)
     
     var newItem = setPrevItemIdOnItem(prevItemId, item)
-    newItemsById = newItemsById.set(itemId, item)
+    newItemsById = newItemsById.set(itemId, newItem)
     
     return newItemsById
   }

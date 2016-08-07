@@ -1,27 +1,25 @@
-import { Map, Collection } from 'immutable'
+import { Map, Collection, Iterable } from 'immutable'
 import { Iterator, iteratorDone, iteratorValue } from './Iterator'
+import assertNotInfinite from './utils/assertNotInfinite'
 
-console.log('Map', Map)
+console.log('Iterable', Iterable)
 
 const notImplementedError = (name) => {throw new Error(name + ': Method Not Implemented')}
-export class IndexedDoublyLinkedList extends Collection.Indexed {
+export class IndexedDoublyLinkedList extends Collection.Keyed {
   // @pragma Construction
 
-  constructor(value, idFn) {
+  constructor(value) {
     const valueIsNull = value === null || value === undefined
     const emptyList = emptyIndexedDoublyLinkedList()
-    // if (valueIsNull) return emptyList
-    // if (isIndexedDoublyLinkedList(value)) return value
+    if (valueIsNull) return emptyList
+    if (isIndexedDoublyLinkedList(value)) return value
 
+    let newList = emptyList
+    const iter = Iterable.Keyed(value)
+    assertNotInfinite(iter.size)
+    iter.forEach((v, k) => newList = newList.push(v, k))
 
-    return emptyList
-    // return valueIsNull ? emptyList :
-    //   isMap(value) && !isOrdered(value) ? value :
-    //   emptyMap().withMutations(map => {
-    //     var iter = KeyedIterable(value);
-    //     assertNotInfinite(iter.size);
-    //     iter.forEach((v, k) => map.set(k, v));
-    //   });
+    return newList
   }
 
   // static of() {
@@ -49,6 +47,7 @@ export class IndexedDoublyLinkedList extends Collection.Indexed {
     return notSetValue
   }
 
+  // mutates underlying
   set(valueId, value) {
     return updateValueInItemsById(this, valueId, value)
   }
@@ -266,7 +265,7 @@ const addNewItemAtEndOfList = (itemsById, prevItemId, item) => {
   let newItemsById = itemsById.setIn([prevItemId, 'nextItemId'], itemId)
   
   const newItem = setPrevItemIdOnItem(prevItemId, item)
-  newItemsById = newItemsById.set(itemId, item)
+  newItemsById = newItemsById.set(itemId, newItem)
   
   return newItemsById
 }
@@ -330,12 +329,13 @@ const updateIndexedDoublyLinkedList = (dlList, k, v) => {
 }
 
 /* Unimplemented Methods
+mergeIn?
+mergeDeepIn?
+
 merge
-mergeIn
 mergeWith
 mergeDeep
 mergeDeepWith
-mergeDeepIn
 
 sort
 sortBy
