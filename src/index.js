@@ -167,8 +167,17 @@ export class IndexedDoublyLinkedList extends Collection.Indexed {
     return null;
   }
 
-  __ensureOwner() {
-    notImplementedError('__ensureOwner')
+  __ensureOwner(ownerID) {
+    if (ownerID === this.__ownerID) {
+      return this;
+    }
+    if (!ownerID) {
+      this.__ownerID = ownerID;
+      this.__altered = false;
+      return this;
+    }
+    return makeIndexedDoublyLinkedList(this._itemsById, this._firstItemId, this._lastItemId, 
+      this._currentItemId, this._idFn, ownerID, this.__hash)
   }
 
 }

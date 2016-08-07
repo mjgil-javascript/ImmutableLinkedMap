@@ -172,8 +172,30 @@
       notImplementedError('getBetween')
     };
 
+    IndexedDoublyLinkedList.prototype.getNext = function() {
+      notImplementedError('getBetween')
+    };
+
+    IndexedDoublyLinkedList.prototype.getPrev = function() {
+      notImplementedError('getBetween')
+    };
+
     IndexedDoublyLinkedList.prototype.deleteBetween = function() {
       notImplementedError('deleteBetween')
+    };
+
+    // moves to next
+    IndexedDoublyLinkedList.prototype.next = function() {
+      notImplementedError('moveToNext')
+    };
+
+    // moves to prev
+    IndexedDoublyLinkedList.prototype.prev = function() {
+      notImplementedError('moveToPrev')
+    };
+
+    IndexedDoublyLinkedList.prototype.moveTo = function(valueId) {
+      notImplementedError('moveTo')
     };
 
     IndexedDoublyLinkedList.prototype.moveToStart = function() {
@@ -184,24 +206,24 @@
       notImplementedError('moveToEnd')
     };
 
-    IndexedDoublyLinkedList.prototype.moveToNext = function() {
-      notImplementedError('moveToNext')
-    };
-
-    IndexedDoublyLinkedList.prototype.moveToPrev = function() {
-      notImplementedError('moveToPrev')
-    };
-
-    IndexedDoublyLinkedList.prototype.moveTo = function() {
-      notImplementedError('moveTo')
-    };
-
     IndexedDoublyLinkedList.prototype.clear = function() {
-      notImplementedError('clear')
+      if (this.size === 0) {
+        return this;
+      }
+      if (this.__ownerID) {
+        this.size = 0;
+        this._itemsById = immutable.Map();
+        this._firstItemId = undefined
+        this._lastItemId = undefined
+        this._currentItemId = undefined
+        this.__hash = undefined;
+        this.__altered = true;
+        return this;
+      }
+      return emptyIndexedDoublyLinkedList();
     };
 
     IndexedDoublyLinkedList.prototype.__iterator = function(type, reverse) {
-      console.log('__iterator', type, reverse)
       var iter = iterateList(this, reverse);
       return new Iterator(function()  {
         var obj = iter.next();
@@ -223,8 +245,17 @@
       return null;
     };
 
-    IndexedDoublyLinkedList.prototype.__ensureOwner = function() {
-      notImplementedError('__ensureOwner')
+    IndexedDoublyLinkedList.prototype.__ensureOwner = function(ownerID) {
+      if (ownerID === this.__ownerID) {
+        return this;
+      }
+      if (!ownerID) {
+        this.__ownerID = ownerID;
+        this.__altered = false;
+        return this;
+      }
+      return makeIndexedDoublyLinkedList(this._itemsById, this._firstItemId, this._lastItemId, 
+        this._currentItemId, this._idFn, ownerID, this.__hash)
     };
 
 
