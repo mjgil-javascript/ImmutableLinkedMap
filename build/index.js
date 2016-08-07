@@ -26,8 +26,61 @@
     ctor.prototype.constructor = ctor;
   }
 
+  /**
+   *  Copyright (c) 2014-2015, Facebook, Inc.
+   *  All rights reserved.
+   *
+   *  This source code is licensed under the BSD-style license found in the
+   *  LICENSE file in the root directory of this source tree. An additional grant
+   *  of patent rights can be found in the PATENTS file in the same directory.
+   */
+
+  /* global Symbol */
+
+  var ITERATE_KEYS = 0;
+  var ITERATE_VALUES = 1;
+  var ITERATE_ENTRIES = 2;
+
+  var REAL_ITERATOR_SYMBOL = typeof Symbol === 'function' && Symbol.iterator;
+  var FAUX_ITERATOR_SYMBOL = '@@iterator';
+
+  var ITERATOR_SYMBOL = REAL_ITERATOR_SYMBOL || FAUX_ITERATOR_SYMBOL;
+
+
+  function Iterator(next) {
+      this.next = next;
+    }
+
+    Iterator.prototype.toString = function() {
+      return '[Iterator]';
+    };
+
+
+  Iterator.KEYS = ITERATE_KEYS;
+  Iterator.VALUES = ITERATE_VALUES;
+  Iterator.ENTRIES = ITERATE_ENTRIES;
+
+  Iterator.prototype.inspect =
+  Iterator.prototype.toSource = function () { return this.toString(); }
+  Iterator.prototype[ITERATOR_SYMBOL] = function () {
+    return this;
+  };
+
+
+  function iteratorValue(type, k, v, iteratorResult) {
+    var value = type === 0 ? k : type === 1 ? v : [k, v];
+    iteratorResult ? (iteratorResult.value = value) : (iteratorResult = {
+      value: value, done: false
+    });
+    return iteratorResult;
+  }
+
+  function iteratorDone() {
+    return { value: undefined, done: true };
+  }
+
   var notImplementedError = function(name)  {throw new Error(name + ': Method Not Implemented')}
-  createClass(IndexedDoublyLinkedList, immutable.Collection.Keyed);
+  createClass(IndexedDoublyLinkedList, immutable.Collection.Indexed);
     // @pragma Construction
 
     function IndexedDoublyLinkedList(value, idFn) {
@@ -63,12 +116,17 @@
       return this.__toString('Doubly Linked List [', ']')
     };
 
-    IndexedDoublyLinkedList.prototype.get = function() {
-      notImplementedError('get')
+    IndexedDoublyLinkedList.prototype.get = function(valueId, notSetValue) {
+      // notImplementedError('get')
+      var item = getItemById(this._itemsById, valueId)
+      if (item) {
+        return item.get('value')
+      }
+      return notSetValue
     };
 
-    IndexedDoublyLinkedList.prototype.set = function() {
-      notImplementedError('set')
+    IndexedDoublyLinkedList.prototype.set = function(valueId, value) {
+      return updateValueInItemsById(this, valueId, value)
     };
 
     IndexedDoublyLinkedList.prototype.setIn = function() {
@@ -144,8 +202,15 @@
       notImplementedError('clear')
     };
 
-    IndexedDoublyLinkedList.prototype.__iterator = function() {
-      notImplementedError('__iterator')
+    IndexedDoublyLinkedList.prototype.__iterator = function(type, reverse) {
+      console.log('__iterator', type, reverse)
+      var iter = iterateList(this, reverse);
+      return new Iterator(function()  {
+        var obj = iter.next();
+        return obj.done ?
+          iteratorDone() :
+          iteratorValue(type, obj.key, obj.value.get('value'));
+      });
     };
 
     IndexedDoublyLinkedList.prototype.__iterate = function(fn, reverse) {
@@ -166,6 +231,17 @@
 
 
 
+  var getItemById = function(itemsById, itemId)  {
+    return itemsById.get(itemId)
+  }
+
+  var updateValueInItemsById = function(dlList, itemId, value)  {
+    var item = dlList._itemsById.get(itemId)
+    var newItem = setValueOnItem(value, item)
+    var newItemsById = dlList._itemsById.set(itemId, newItem)
+    return makeIndexedDoublyLinkedList(newItemsById, dlList._firstItemId, dlList._lastItemId, 
+      dlList._currentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
+  }
 
   var iterateList = function(dlList, reverse)  {
     var itemsById = dlList._itemsById
@@ -252,6 +328,10 @@
 
   var setPrevItemIdOnItem = function(prevItemId, item)  {
     return item.set('prevItemId', prevItemId)
+  }
+
+  var setValueOnItem = function(value, item)  {
+    return item.set('value', value)
   }
 
   // factory pattern

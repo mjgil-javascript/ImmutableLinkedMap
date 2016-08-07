@@ -1,9 +1,10 @@
 import { Map, Collection } from 'immutable'
+import { Iterator, iteratorDone, iteratorValue } from './Iterator'
 
 
 
 const notImplementedError = (name) => {throw new Error(name + ': Method Not Implemented')}
-export class IndexedDoublyLinkedList extends Collection.Keyed {
+export class IndexedDoublyLinkedList extends Collection.Indexed {
   // @pragma Construction
 
   constructor(value, idFn) {
@@ -39,12 +40,17 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
     return this.__toString('Doubly Linked List [', ']')
   }
 
-  get() {
-    notImplementedError('get')
+  get(valueId, notSetValue) {
+    // notImplementedError('get')
+    const item = getItemById(this._itemsById, valueId)
+    if (item) {
+      return item.get('value')
+    }
+    return notSetValue
   }
 
-  set() {
-    notImplementedError('set')
+  set(valueId, value) {
+    return updateValueInItemsById(this, valueId, value)
   }
 
   setIn() {
@@ -120,8 +126,15 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
     notImplementedError('clear')
   }
 
-  __iterator() {
-    notImplementedError('__iterator')
+  __iterator(type, reverse) {
+    console.log('__iterator', type, reverse)
+    let iter = iterateList(this, reverse);
+    return new Iterator(() => {
+      let obj = iter.next();
+      return obj.done ?
+        iteratorDone() :
+        iteratorValue(type, obj.key, obj.value.get('value'));
+    });
   }
 
   __iterate(fn, reverse) {
@@ -142,6 +155,17 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
 
 }
 
+const getItemById = (itemsById, itemId) => {
+  return itemsById.get(itemId)
+}
+
+const updateValueInItemsById = (dlList, itemId, value) => {
+  const item = dlList._itemsById.get(itemId)
+  const newItem = setValueOnItem(value, item)
+  const newItemsById = dlList._itemsById.set(itemId, newItem)
+  return makeIndexedDoublyLinkedList(newItemsById, dlList._firstItemId, dlList._lastItemId, 
+    dlList._currentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
+}
 
 const iterateList = (dlList, reverse) => {
   const itemsById = dlList._itemsById
@@ -234,6 +258,10 @@ const setNextItemIdOnItem = (nextItemId, item) => {
 
 const setPrevItemIdOnItem = (prevItemId, item) => {
   return item.set('prevItemId', prevItemId)
+}
+
+const setValueOnItem = (value, item) => {
+  return item.set('value', value)
 }
 
 // factory pattern
