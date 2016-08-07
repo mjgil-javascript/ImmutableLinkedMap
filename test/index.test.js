@@ -21,3 +21,6 @@ console.log('forEach', dlList.forEach((val) => console.log(val.toJS())))
 for (var i of dlList) { console.log(i) }
 console.log('get', dlList.get(1))
 console.log('get', dlList.set(1, 'malcom'))
+console.log('get', dlList.setIn([1], 'malcom2'))
+console.log('get', dlList.update(2, (val) => val.get('name')))
+console.log('get', dlList.updateIn([2, 'name'], (val) => val + val))

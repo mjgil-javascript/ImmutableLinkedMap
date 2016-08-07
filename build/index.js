@@ -79,6 +79,8 @@
     return { value: undefined, done: true };
   }
 
+  console.log('Map', immutable.Map)
+
   var notImplementedError = function(name)  {throw new Error(name + ': Method Not Implemented')}
   createClass(IndexedDoublyLinkedList, immutable.Collection.Indexed);
     // @pragma Construction
@@ -127,10 +129,6 @@
 
     IndexedDoublyLinkedList.prototype.set = function(valueId, value) {
       return updateValueInItemsById(this, valueId, value)
-    };
-
-    IndexedDoublyLinkedList.prototype.setIn = function() {
-      notImplementedError('setIn')
     };
 
     IndexedDoublyLinkedList.prototype.remove = function() {
@@ -273,11 +271,24 @@
 
   }
 
-  IndexedDoublyLinkedList.prototype['DELETE'] = IndexedDoublyLinkedList.prototype.remove;
-
-
   var IS_DOUBLY_LINKED_LIST_SENTINEL = '@@__IMMUTABLE_DOUBLY_LINKED_LIST__@@';
-  IndexedDoublyLinkedList.prototype[IS_DOUBLY_LINKED_LIST_SENTINEL] = true;
+
+  var IndexedDoublyLinkedListPrototype = IndexedDoublyLinkedList.prototype
+  IndexedDoublyLinkedListPrototype['DELETE'] = IndexedDoublyLinkedListPrototype.remove;
+  IndexedDoublyLinkedListPrototype[IS_DOUBLY_LINKED_LIST_SENTINEL] = true;
+
+  var MapPrototype = immutable.Map.prototype
+  IndexedDoublyLinkedListPrototype.setIn = MapPrototype.setIn;
+  IndexedDoublyLinkedListPrototype.deleteIn =
+  IndexedDoublyLinkedListPrototype.removeIn = MapPrototype.removeIn;
+  IndexedDoublyLinkedListPrototype.update = MapPrototype.update;
+  IndexedDoublyLinkedListPrototype.updateIn = MapPrototype.updateIn;
+  IndexedDoublyLinkedListPrototype.mergeIn = MapPrototype.mergeIn;
+  IndexedDoublyLinkedListPrototype.mergeDeepIn = MapPrototype.mergeDeepIn;
+  IndexedDoublyLinkedListPrototype.withMutations = MapPrototype.withMutations;
+  IndexedDoublyLinkedListPrototype.asMutable = MapPrototype.asMutable;
+  IndexedDoublyLinkedListPrototype.asImmutable = MapPrototype.asImmutable;
+  IndexedDoublyLinkedListPrototype.wasAltered = MapPrototype.wasAltered;
 
   var isIndexedDoublyLinkedList = function(maybeIndexedDoublyLinkedList)  {
     return !!(maybeIndexedDoublyLinkedList && maybeIndexedDoublyLinkedList[IS_DOUBLY_LINKED_LIST_SENTINEL]);
@@ -356,6 +367,7 @@
   }
 
   exports.IndexedDoublyLinkedList = IndexedDoublyLinkedList;
+  exports.IndexedDoublyLinkedListPrototype = IndexedDoublyLinkedListPrototype;
   exports.emptyIndexedDoublyLinkedList = emptyIndexedDoublyLinkedList;
 
 }));

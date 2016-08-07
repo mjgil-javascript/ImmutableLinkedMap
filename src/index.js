@@ -1,7 +1,7 @@
 import { Map, Collection } from 'immutable'
 import { Iterator, iteratorDone, iteratorValue } from './Iterator'
 
-
+console.log('Map', Map)
 
 const notImplementedError = (name) => {throw new Error(name + ': Method Not Implemented')}
 export class IndexedDoublyLinkedList extends Collection.Indexed {
@@ -53,10 +53,6 @@ export class IndexedDoublyLinkedList extends Collection.Indexed {
     return updateValueInItemsById(this, valueId, value)
   }
 
-  setIn() {
-    notImplementedError('setIn')
-  }
-
   remove() {
     notImplementedError('remove')
   }
@@ -98,8 +94,30 @@ export class IndexedDoublyLinkedList extends Collection.Indexed {
     notImplementedError('getBetween')
   }
 
+  getNext() {
+    notImplementedError('getBetween')
+  }
+
+  getPrev() {
+    notImplementedError('getBetween')
+  }
+
   deleteBetween() {
     notImplementedError('deleteBetween')
+  }
+
+  // moves to next
+  next() {
+    notImplementedError('moveToNext')
+  }
+
+  // moves to prev
+  prev() {
+    notImplementedError('moveToPrev')
+  }
+
+  moveTo(valueId) {
+    notImplementedError('moveTo')
   }
 
   moveToStart() {
@@ -110,24 +128,24 @@ export class IndexedDoublyLinkedList extends Collection.Indexed {
     notImplementedError('moveToEnd')
   }
 
-  moveToNext() {
-    notImplementedError('moveToNext')
-  }
-
-  moveToPrev() {
-    notImplementedError('moveToPrev')
-  }
-
-  moveTo() {
-    notImplementedError('moveTo')
-  }
-
   clear() {
-    notImplementedError('clear')
+    if (this.size === 0) {
+      return this;
+    }
+    if (this.__ownerID) {
+      this.size = 0;
+      this._itemsById = Map();
+      this._firstItemId = undefined
+      this._lastItemId = undefined
+      this._currentItemId = undefined
+      this.__hash = undefined;
+      this.__altered = true;
+      return this;
+    }
+    return emptyIndexedDoublyLinkedList();
   }
 
   __iterator(type, reverse) {
-    console.log('__iterator', type, reverse)
     let iter = iterateList(this, reverse);
     return new Iterator(() => {
       let obj = iter.next();
@@ -199,11 +217,24 @@ const iterateList = (dlList, reverse) => {
 
 // Used for setting prototype methods that IE8 chokes on.
 const DELETE = 'delete';
-IndexedDoublyLinkedList.prototype['DELETE'] = IndexedDoublyLinkedList.prototype.remove;
-
-
 const IS_DOUBLY_LINKED_LIST_SENTINEL = '@@__IMMUTABLE_DOUBLY_LINKED_LIST__@@';
-IndexedDoublyLinkedList.prototype[IS_DOUBLY_LINKED_LIST_SENTINEL] = true;
+
+export var IndexedDoublyLinkedListPrototype = IndexedDoublyLinkedList.prototype
+IndexedDoublyLinkedListPrototype['DELETE'] = IndexedDoublyLinkedListPrototype.remove;
+IndexedDoublyLinkedListPrototype[IS_DOUBLY_LINKED_LIST_SENTINEL] = true;
+
+const MapPrototype = Map.prototype
+IndexedDoublyLinkedListPrototype.setIn = MapPrototype.setIn;
+IndexedDoublyLinkedListPrototype.deleteIn =
+IndexedDoublyLinkedListPrototype.removeIn = MapPrototype.removeIn;
+IndexedDoublyLinkedListPrototype.update = MapPrototype.update;
+IndexedDoublyLinkedListPrototype.updateIn = MapPrototype.updateIn;
+IndexedDoublyLinkedListPrototype.mergeIn = MapPrototype.mergeIn;
+IndexedDoublyLinkedListPrototype.mergeDeepIn = MapPrototype.mergeDeepIn;
+IndexedDoublyLinkedListPrototype.withMutations = MapPrototype.withMutations;
+IndexedDoublyLinkedListPrototype.asMutable = MapPrototype.asMutable;
+IndexedDoublyLinkedListPrototype.asImmutable = MapPrototype.asImmutable;
+IndexedDoublyLinkedListPrototype.wasAltered = MapPrototype.wasAltered;
 
 const isIndexedDoublyLinkedList = (maybeIndexedDoublyLinkedList) => {
   return !!(maybeIndexedDoublyLinkedList && maybeIndexedDoublyLinkedList[IS_DOUBLY_LINKED_LIST_SENTINEL]);
