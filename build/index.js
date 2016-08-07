@@ -142,7 +142,8 @@
 
     IndexedDoublyLinkedList.prototype.get = function(valueId, notSetValue) {
       // notImplementedError('get')
-      var item = getItemById(this._itemsById, valueId)
+      var itemId = valueId || this._currentItemId
+      var item = getItemById(this._itemsById, itemId)
       if (item) {
         return item.get('value')
       }
@@ -199,11 +200,11 @@
     };
 
     IndexedDoublyLinkedList.prototype.getNext = function() {
-      notImplementedError('getBetween')
+      notImplementedError('getNext')
     };
 
     IndexedDoublyLinkedList.prototype.getPrev = function() {
-      notImplementedError('getBetween')
+      notImplementedError('getPrev')
     };
 
     IndexedDoublyLinkedList.prototype.deleteBetween = function() {
@@ -415,7 +416,7 @@
     if (!_firstItemId && !_lastItemId) {
       var newItemsById = _itemsById.set(itemId, item)
       return makeIndexedDoublyLinkedList(newItemsById, itemId, itemId, 
-        dlList._currentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
+        itemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
     }
     else if (_lastItemId) {
       var newItemsById$0 = addNewItemAtEndOfList(_itemsById, _lastItemId, item)

@@ -48,7 +48,8 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
 
   get(valueId, notSetValue) {
     // notImplementedError('get')
-    const item = getItemById(this._itemsById, valueId)
+    const itemId = valueId || this._currentItemId
+    const item = getItemById(this._itemsById, itemId)
     if (item) {
       return item.get('value')
     }
@@ -105,11 +106,11 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
   }
 
   getNext() {
-    notImplementedError('getBetween')
+    notImplementedError('getNext')
   }
 
   getPrev() {
-    notImplementedError('getBetween')
+    notImplementedError('getPrev')
   }
 
   deleteBetween() {
@@ -321,7 +322,7 @@ const pushItemOnList = (item, dlList) => {
   if (!_firstItemId && !_lastItemId) {
     const newItemsById = _itemsById.set(itemId, item)
     return makeIndexedDoublyLinkedList(newItemsById, itemId, itemId, 
-      dlList._currentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
+      itemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
   }
   else if (_lastItemId) {
     let newItemsById = addNewItemAtEndOfList(_itemsById, _lastItemId, item)
