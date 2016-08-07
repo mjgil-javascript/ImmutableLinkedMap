@@ -47,7 +47,6 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
     return notSetValue
   }
 
-  // mutates underlying
   set(valueId, value) {
     return updateValueInItemsById(this, valueId, value)
   }

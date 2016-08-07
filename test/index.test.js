@@ -16,8 +16,8 @@ dlList = addToList(value4, dlList)
 
 console.log('dlList', dlList)
 console.log('toString', dlList.toString())
-console.log('map', dlList.map((val) => 'malcom')._itemsById) 
-console.log('forEach', dlList.forEach((val) => console.log(val.toJS())))
+console.log('map', dlList.map((val) => 'malcom')) 
+console.log('forEach', dlList.forEach((val, k) => console.log(val.toJS(), k)))
 for (var i of dlList) { console.log(i) }
 console.log('get', dlList.get(1))
 console.log('set', dlList.set(1, 'malcom'))

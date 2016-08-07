@@ -144,7 +144,6 @@
       return notSetValue
     };
 
-    // mutates underlying
     IndexedDoublyLinkedList.prototype.set = function(valueId, value) {
       return updateValueInItemsById(this, valueId, value)
     };
