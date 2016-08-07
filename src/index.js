@@ -5,9 +5,17 @@ import assertNotInfinite from './utils/assertNotInfinite'
 console.log('Iterable', Iterable)
 
 const notImplementedError = (name) => {throw new Error(name + ': Method Not Implemented')}
+
+// subclassing Collection.Keyed to get iterable methods to work
+// methods: https://github.com/facebook/immutable-js/blob/0f88549e3ceeb6a8834709b095105aa5e2922b63/src/IterableImpl.js
+// inspiration: https://github.com/facebook/immutable-js/blob/0f88549e3ceeb6a8834709b095105aa5e2922b63/src/Map.js
 export class IndexedDoublyLinkedList extends Collection.Keyed {
   // @pragma Construction
 
+  // this is a custom constructor that is compiled to a function
+  // with the declassify.js file in /resources/declassify.js
+  // taken from: https://github.com/facebook/immutable-js/blob/0f88549e3ceeb6a8834709b095105aa5e2922b63/resources/declassify.js
+  // look at build to see final output after this and es6-transpilation
   constructor(value) {
     const valueIsNull = value === null || value === undefined
     const emptyList = emptyIndexedDoublyLinkedList()
@@ -22,6 +30,7 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
     return newList
   }
 
+  // like Immutable.Map
   static of(...keyValues) {
     // 1, 'a', 2, 'b', 3, '4'
     let newList = emptyIndexedDoublyLinkedList()
@@ -230,6 +239,8 @@ export var IndexedDoublyLinkedListPrototype = IndexedDoublyLinkedList.prototype
 IndexedDoublyLinkedListPrototype['DELETE'] = IndexedDoublyLinkedListPrototype.remove;
 IndexedDoublyLinkedListPrototype[IS_DOUBLY_LINKED_LIST_SENTINEL] = true;
 
+
+// adding to Prototype so that subclassing works
 const MapPrototype = Map.prototype
 IndexedDoublyLinkedListPrototype.setIn = MapPrototype.setIn;
 IndexedDoublyLinkedListPrototype.deleteIn =
