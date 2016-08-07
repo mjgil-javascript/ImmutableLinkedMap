@@ -26,6 +26,7 @@
     ctor.prototype.constructor = ctor;
   }
 
+  var notImplementedError = function(name)  {throw new Error(name + ': Method Not Implemented')}
   createClass(IndexedDoublyLinkedList, immutable.Collection.Keyed);
     // @pragma Construction
 
@@ -62,8 +63,140 @@
       return this.__toString('Doubly Linked List [', ']')
     };
 
+    IndexedDoublyLinkedList.prototype.get = function() {
+      notImplementedError('get')
+    };
+
+    IndexedDoublyLinkedList.prototype.set = function() {
+      notImplementedError('set')
+    };
+
+    IndexedDoublyLinkedList.prototype.setIn = function() {
+      notImplementedError('setIn')
+    };
+
+    IndexedDoublyLinkedList.prototype.remove = function() {
+      notImplementedError('remove')
+    };
+
+    // List Methods
+
+    // adds to end
+    IndexedDoublyLinkedList.prototype.push = function(value, key) {
+      var item = makeListItem(value, key)
+      return pushItemOnList(item, this)
+    };
+
+    // adds to back
+    IndexedDoublyLinkedList.prototype.pop = function() {
+      notImplementedError('pop')
+    };
+
+    IndexedDoublyLinkedList.prototype.unshift = function() {
+      notImplementedError('unshift')
+    };
+
+    IndexedDoublyLinkedList.prototype.shift = function() {
+      notImplementedError('shift')
+    };
+
+    IndexedDoublyLinkedList.prototype.swap = function() {
+      notImplementedError('swap')
+    };
+
+    IndexedDoublyLinkedList.prototype.insertAfter = function() {
+      notImplementedError('insertAfter')
+    };
+
+    IndexedDoublyLinkedList.prototype.insertBefore = function() {
+      notImplementedError('insertBefore')
+    };
+
+    IndexedDoublyLinkedList.prototype.getBetween = function() {
+      notImplementedError('getBetween')
+    };
+
+    IndexedDoublyLinkedList.prototype.deleteBetween = function() {
+      notImplementedError('deleteBetween')
+    };
+
+    IndexedDoublyLinkedList.prototype.moveToStart = function() {
+      notImplementedError('moveToStart')
+    };
+
+    IndexedDoublyLinkedList.prototype.moveToEnd = function() {
+      notImplementedError('moveToEnd')
+    };
+
+    IndexedDoublyLinkedList.prototype.moveToNext = function() {
+      notImplementedError('moveToNext')
+    };
+
+    IndexedDoublyLinkedList.prototype.moveToPrev = function() {
+      notImplementedError('moveToPrev')
+    };
+
+    IndexedDoublyLinkedList.prototype.moveTo = function() {
+      notImplementedError('moveTo')
+    };
+
+    IndexedDoublyLinkedList.prototype.clear = function() {
+      notImplementedError('clear')
+    };
+
+    IndexedDoublyLinkedList.prototype.__iterator = function() {
+      notImplementedError('__iterator')
+    };
+
+    IndexedDoublyLinkedList.prototype.__iterate = function(fn, reverse) {
+      var iter = iterateList(this, reverse);
+      var obj = iter.next();
+      while (!obj.done) {
+        if (fn(obj.value.get('value'), obj.key, this) === false) {
+          break;
+        }
+        obj = iter.next()
+      }
+      return null;
+      // notImplementedError('__iterate')
+    };
+
+    IndexedDoublyLinkedList.prototype.__ensureOwner = function() {
+      notImplementedError('__ensureOwner')
+    };
 
 
+
+
+  var iterateList = function(dlList, reverse)  {
+    var itemsById = dlList._itemsById
+    var nextItemId;
+    if (!reverse) {
+      nextItemId = dlList._firstItemId
+
+      return {
+        next: function()  {
+          var item = itemsById.get(nextItemId)
+          var iterObj = { value: item, key: nextItemId, done: !item }
+          nextItemId = item ? item.get('nextItemId') : null
+          return iterObj
+        }
+      }
+    }
+    else {
+      nextItemId = dlList._lastItemId
+
+      return {
+        next: function()  {
+          var item = itemsById.get(itemId)
+          var iterObj = { value: item, key: nextItemId, done: !item }
+          nextItemId = item ? item.get('prevItemId') : null
+          return iterObj
+        }
+      }
+    }
+
+  }
 
   IndexedDoublyLinkedList.prototype['DELETE'] = IndexedDoublyLinkedList.prototype.remove;
 
@@ -76,22 +209,46 @@
   }
   IndexedDoublyLinkedList.isIndexedDoublyLinkedList = isIndexedDoublyLinkedList;
 
+  var makeListItem = function(value, key)  {
+    var item = immutable.Map({
+      id: key,
+      prevItemId: null,
+      nextItemId: null,
+      value: value
+    })
 
+    return item
+  }
 
+  var pushItemOnList = function(item, dlList)  {
+    var _firstItemId = dlList._firstItemId, _lastItemId = dlList._lastItemId, _itemsById = dlList._itemsById
+    var itemId = item.get('id')
+    // handle empty list
+    if (!_firstItemId && !_lastItemId) {
+      var newItemsById = _itemsById.set(itemId, item)
+      return makeIndexedDoublyLinkedList(newItemsById, itemId, itemId, 
+        dlList._currentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
+    }
 
-  var makeIndexedDoublyLinkedList = function(map, root, tail, current, ownerID, hash)  {
+    return dlList
+  }
+
+  // factory pattern
+  var makeIndexedDoublyLinkedList = function(itemsById, firstItemId, lastItemId, currentItemId, idFn, ownerID, hash)  {
     var dlList = Object.create(IndexedDoublyLinkedList.prototype);
-    dlList.size = map ? map.size : 0;
-    dlList._map = map;
-    dlList._root = root;
-    dlList._tail = tail;
-    dlList._current = current;
+    dlList.size = itemsById ? itemsById.size : 0;
+    dlList._itemsById = itemsById;
+    dlList._firstItemId = firstItemId;
+    dlList._lastItemId = lastItemId;
+    dlList._currentItemId = currentItemId;
+    dlList._idFn = idFn
     dlList.__ownerID = ownerID;
     dlList.__hash = hash;
     dlList.__altered = false;
     return dlList;
   }
 
+  // singleton pattern
   var EMPTY_INDEXED_DOUBLY_LINKED_LIST;
   var emptyIndexedDoublyLinkedList = function()  {
     return EMPTY_INDEXED_DOUBLY_LINKED_LIST || (EMPTY_INDEXED_DOUBLY_LINKED_LIST = makeIndexedDoublyLinkedList(immutable.Map()));
