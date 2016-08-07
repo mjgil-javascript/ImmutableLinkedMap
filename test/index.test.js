@@ -10,3 +10,4 @@ const value5 = Map({id: 5, name: 'five'})
 let dlList = IndexedDoublyLinkedList()
 
 console.log('dlList', dlList)
+console.log('dlList', dlList.toString())

@@ -10,16 +10,33 @@
   (factory((global.IndexedDoublyLinkedList = {}),global.immutable));
 }(this, function (exports,immutable) { 'use strict';
 
-  // @pragma Construction
+  /**
+   *  Copyright (c) 2014-2015, Facebook, Inc.
+   *  All rights reserved.
+   *
+   *  This source code is licensed under the BSD-style license found in the
+   *  LICENSE file in the root directory of this source tree. An additional grant
+   *  of patent rights can be found in the PATENTS file in the same directory.
+   */
+
+  function createClass(ctor, superClass) {
+    if (superClass) {
+      ctor.prototype = Object.create(superClass.prototype);
+    }
+    ctor.prototype.constructor = ctor;
+  }
+
+  createClass(IndexedDoublyLinkedList, immutable.Collection.Keyed);
+    // @pragma Construction
 
     function IndexedDoublyLinkedList(value, idFn) {
       var valueIsNull = value === null || value === undefined
       var emptyList = emptyIndexedDoublyLinkedList()
-      if (valueIsNull) return emptyList
-      if (isIndexedDoublyLinkedList(value)) return value
+      // if (valueIsNull) return emptyList
+      // if (isIndexedDoublyLinkedList(value)) return value
 
 
-      return emptyIndexedDoublyLinkedList()
+      return emptyList
       // return valueIsNull ? emptyList :
       //   isMap(value) && !isOrdered(value) ? value :
       //   emptyMap().withMutations(map => {
@@ -29,18 +46,21 @@
       //   });
     }
 
-    IndexedDoublyLinkedList.of = function() {var S_ITER$0 = typeof Symbol!=='undefined'&&Symbol&&Symbol.iterator||'@@iterator';var S_MARK$0 = typeof Symbol!=='undefined'&&Symbol&&Symbol["__setObjectSetter__"];function ITER$0(v,f){if(v){if(Array.isArray(v))return f?v.slice():v;var i,r;if(S_MARK$0)S_MARK$0(v);if(typeof v==='object'&&typeof (f=v[S_ITER$0])==='function'){i=f.call(v);r=[];}else if((v+'')==='[object Generator]'){i=v;r=[];};if(S_MARK$0)S_MARK$0(void 0);if(r) {while((f=i['next']()),f['done']!==true)r.push(f['value']);return r;}}throw new Error(v+' is not iterable')};
-      var argArray = ITER$0(arguments)
-      var lastArg = argArray[argArray.length]
-      if (typeof lastArg === 'function') {
-        argArray.pop()
-        return this(argArray, idFn)
-      }
-      else {
-        throw new Error('Last Argument should be id extraction function: ' + argArray.toString());
-      }
-    };
+    // static of() {
+    //   const argArray = [...arguments]
+    //   const lastArg = argArray[argArray.length]
+    //   if (typeof lastArg === 'function') {
+    //     argArray.pop()
+    //     return this(argArray, idFn)
+    //   }
+    //   else {
+    //     throw new Error('Last Argument should be id extraction function: ' + argArray.toString());
+    //   }
+    // }
 
+    IndexedDoublyLinkedList.prototype.toString = function() {
+      return this.__toString('Doubly Linked List [', ']')
+    };
 
 
 

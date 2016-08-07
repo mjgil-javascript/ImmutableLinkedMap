@@ -27,6 +27,7 @@ rollup.rollup({
       }
     ]
   })
+  .catch(function(e) {console.log(e)})
   .then(function (bundle) {
     var copyright = fs.readFileSync('./resources/COPYRIGHT');
 

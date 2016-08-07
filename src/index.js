@@ -1,18 +1,19 @@
 import { Map, Collection } from 'immutable'
-// value needs 'id' field
-// data structure is mutable
 
-export class IndexedDoublyLinkedList  {
+
+
+const notImplementedError = () => {throw new Error('Method Not Implemented')}
+export class IndexedDoublyLinkedList extends Collection.Keyed {
   // @pragma Construction
 
   constructor(value, idFn) {
     const valueIsNull = value === null || value === undefined
     const emptyList = emptyIndexedDoublyLinkedList()
-    if (valueIsNull) return emptyList
-    if (isIndexedDoublyLinkedList(value)) return value
+    // if (valueIsNull) return emptyList
+    // if (isIndexedDoublyLinkedList(value)) return value
 
 
-    return emptyIndexedDoublyLinkedList()
+    return emptyList
     // return valueIsNull ? emptyList :
     //   isMap(value) && !isOrdered(value) ? value :
     //   emptyMap().withMutations(map => {
@@ -22,20 +23,23 @@ export class IndexedDoublyLinkedList  {
     //   });
   }
 
-  static of() {
-    const argArray = [...arguments]
-    const lastArg = argArray[argArray.length]
-    if (typeof lastArg === 'function') {
-      argArray.pop()
-      return this(argArray, idFn)
-    }
-    else {
-      throw new Error('Last Argument should be id extraction function: ' + argArray.toString());
-    }
+  // static of() {
+  //   const argArray = [...arguments]
+  //   const lastArg = argArray[argArray.length]
+  //   if (typeof lastArg === 'function') {
+  //     argArray.pop()
+  //     return this(argArray, idFn)
+  //   }
+  //   else {
+  //     throw new Error('Last Argument should be id extraction function: ' + argArray.toString());
+  //   }
+  // }
+
+  toString() {
+    return this.__toString('Doubly Linked List [', ']')
   }
 
 }
-
 
 
 // Used for setting prototype methods that IE8 chokes on.

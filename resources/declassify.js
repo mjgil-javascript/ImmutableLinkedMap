@@ -41,6 +41,7 @@ function declassify(source) {
     enter: function (node) {
       switch (node.type) {
         case 'ExportDeclaration':
+
           var declaration = node.declaration;
           if (declaration.type === 'ClassExpression' ||
               declaration.type === 'ClassDeclaration') {
@@ -54,7 +55,9 @@ function declassify(source) {
           break;
 
         case 'ClassExpression':
+
         case 'ClassDeclaration':
+
           var className = node.id.name;
 
           classInfo = {
@@ -126,7 +129,7 @@ function declassify(source) {
   });
 
   if (needsCreateClass) {
-    body.prepend('import createClass from "./utils/createClass"');
+    body.prepend('import createClass from "../resources/createClass"\n');
   }
 
   return body.toString();
