@@ -16,6 +16,7 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
   // with the declassify.js file in /resources/declassify.js
   // taken from: https://github.com/facebook/immutable-js/blob/0f88549e3ceeb6a8834709b095105aa5e2922b63/resources/declassify.js
   // look at build to see final output after this and es6-transpilation
+  // WARNING: This does not compile with babel
   constructor(value) {
     const valueIsNull = value === null || value === undefined
     const emptyList = emptyIndexedDoublyLinkedList()
