@@ -212,8 +212,12 @@
       return insertItemAfterItem(this, afterItem, newItem)
     };
 
-    IndexedDoublyLinkedList.prototype.insertBefore = function(value, key, beforeId) {
-      notImplementedError('insertBefore')
+    IndexedDoublyLinkedList.prototype.insertBefore = function(beforeId, value, key) {
+      var beforeItem = this._itemsById.get(beforeId)
+      if (!beforeItem) itemNotFoundError(beforeId)
+      if (beforeId === this._firstItemId) return this.prepend(value, key)
+      var newItem = makeListItem(value, key)
+      return insertItemBeforeItem(this, beforeItem, newItem)
     };
 
 
@@ -382,6 +386,25 @@
 
     return makeIndexedDoublyLinkedList(newItemsById, newFirstItemId, newLastItemId, 
       dlList._currentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
+  }
+
+  var insertItemBeforeItem = function(dlList, beforeItem, newItem)  {
+    var newItemId = newItem.get('id')
+    var beforeItemId = beforeItem.get('id')
+
+    var beforeItemPrevId = beforeItem.get('prevItemId')
+
+    var newBeforeItem = setFieldOnItem(beforeItem, 'prevItemId', newItemId)
+    var newPrevItem = dlList._itemsById.get(beforeItemPrevId)
+    newPrevItem = setFieldOnItem(newPrevItem, 'nextItemId', newItemId)
+
+    newItem = setFieldOnItem(newItem, 'prevItemId', beforeItemPrevId)
+    newItem = setFieldOnItem(newItem, 'nextItemId', beforeItemId)
+
+    var newItemsById = dlList._itemsById.set(newItemId, newItem)
+    newItemsById = newItemsById.set(beforeItemPrevId, newPrevItem)
+    newItemsById = newItemsById.set(beforeItemId, newBeforeItem)
+    return updateItemsById(dlList, newItemsById)
   }
 
   var insertItemAfterItem = function(dlList, afterItem, newItem)  {

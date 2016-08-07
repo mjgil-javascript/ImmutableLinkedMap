@@ -118,8 +118,12 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
     return insertItemAfterItem(this, afterItem, newItem)
   }
 
-  insertBefore(value, key, beforeId) {
-    notImplementedError('insertBefore')
+  insertBefore(beforeId, value, key) {
+    const beforeItem = this._itemsById.get(beforeId)
+    if (!beforeItem) itemNotFoundError(beforeId)
+    if (beforeId === this._firstItemId) return this.prepend(value, key)
+    const newItem = makeListItem(value, key)
+    return insertItemBeforeItem(this, beforeItem, newItem)
   }
 
 
@@ -288,6 +292,25 @@ const swapItemsInList = (dlList, item1, item2) => {
 
   return makeIndexedDoublyLinkedList(newItemsById, newFirstItemId, newLastItemId, 
     dlList._currentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
+}
+
+const insertItemBeforeItem = (dlList, beforeItem, newItem) => {
+  const newItemId = newItem.get('id')
+  const beforeItemId = beforeItem.get('id')
+
+  const beforeItemPrevId = beforeItem.get('prevItemId')
+
+  const newBeforeItem = setFieldOnItem(beforeItem, 'prevItemId', newItemId)
+  let newPrevItem = dlList._itemsById.get(beforeItemPrevId)
+  newPrevItem = setFieldOnItem(newPrevItem, 'nextItemId', newItemId)
+
+  newItem = setFieldOnItem(newItem, 'prevItemId', beforeItemPrevId)
+  newItem = setFieldOnItem(newItem, 'nextItemId', beforeItemId)
+
+  let newItemsById = dlList._itemsById.set(newItemId, newItem)
+  newItemsById = newItemsById.set(beforeItemPrevId, newPrevItem)
+  newItemsById = newItemsById.set(beforeItemId, newBeforeItem)
+  return updateItemsById(dlList, newItemsById)
 }
 
 const insertItemAfterItem = (dlList, afterItem, newItem) => {
