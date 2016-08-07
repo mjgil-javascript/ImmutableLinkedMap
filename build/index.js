@@ -309,7 +309,7 @@
 
       return {
         next: function()  {
-          var item = itemsById.get(itemId)
+          var item = itemsById.get(nextItemId)
           var iterObj = { value: item, key: nextItemId, done: !item }
           nextItemId = item ? item.get('prevItemId') : null
           return iterObj

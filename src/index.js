@@ -212,7 +212,7 @@ const iterateList = (dlList, reverse) => {
 
     return {
       next: () => {
-        const item = itemsById.get(itemId)
+        const item = itemsById.get(nextItemId)
         const iterObj = { value: item, key: nextItemId, done: !item }
         nextItemId = item ? item.get('prevItemId') : null
         return iterObj
