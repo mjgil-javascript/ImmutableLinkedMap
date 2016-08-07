@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "prebuild": "rimraf build && mkdir build",
     "build": "node compile.js",
     "start": "node build/index.js"
   },
@@ -19,12 +20,14 @@
   },
   "homepage": "https://github.com/IdeaFlowCo/IndexedDoublyLinkedList#readme",
   "devDependencies": {
-    "acorn": "^0.11.0",
-    "babel-preset-es2015": "^6.13.2",
-    "babel-preset-stage-2": "^6.13.0",
-    "es6-transpiler": "^0.7.18",
-    "estraverse": "^1.9.3",
-    "immutable": "^3.8.1",
-    "magic-string": "^0.10.2"
+    "acorn": "0.11.0",
+    "babel-preset-es2015": "6.13.2",
+    "babel-preset-stage-2": "6.13.0",
+    "es6-transpiler": "0.7.18",
+    "estraverse": "1.9.3",
+    "immutable": "3.8.1",
+    "magic-string": "0.10.2",
+    "rimraf": "^2.5.4",
+    "rollup": "0.24.0"
   }
 }
