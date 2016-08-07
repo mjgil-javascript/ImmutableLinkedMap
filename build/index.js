@@ -171,7 +171,7 @@
 
     // adds to back
     IndexedDoublyLinkedList.prototype.pop = function() {
-      notImplementedError('pop')
+      return this.remove(this._lastItemId)
     };
 
     IndexedDoublyLinkedList.prototype.unshift = function() {
@@ -179,7 +179,7 @@
     };
 
     IndexedDoublyLinkedList.prototype.shift = function() {
-      notImplementedError('shift')
+      return this.remove(this._firstItemId)
     };
 
     IndexedDoublyLinkedList.prototype.swap = function() {
@@ -374,8 +374,6 @@
     var itemNext = item.get('nextItemId')
     var itemPrev = item.get('prevItemId')
 
-    console.log('itemNext', itemNext)
-    console.log('itemPrev', itemPrev)
     // update the previous item's 'next' field
     // to point to the deleted item's 'next' field
     if (itemPrev) newItemsById = setFieldOnItemInMap(newItemsById, itemPrev, 'nextItemId', itemNext)

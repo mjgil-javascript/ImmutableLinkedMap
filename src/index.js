@@ -77,7 +77,7 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
 
   // adds to back
   pop() {
-    notImplementedError('pop')
+    return this.remove(this._lastItemId)
   }
 
   unshift() {
@@ -85,7 +85,7 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
   }
 
   shift() {
-    notImplementedError('shift')
+    return this.remove(this._firstItemId)
   }
 
   swap() {
@@ -280,8 +280,6 @@ const deleteItemFromList = (dlList, item) => {
   const itemNext = item.get('nextItemId')
   const itemPrev = item.get('prevItemId')
 
-  console.log('itemNext', itemNext)
-  console.log('itemPrev', itemPrev)
   // update the previous item's 'next' field
   // to point to the deleted item's 'next' field
   if (itemPrev) newItemsById = setFieldOnItemInMap(newItemsById, itemPrev, 'nextItemId', itemNext)
