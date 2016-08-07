@@ -99,18 +99,23 @@
     );
   }
 
-  console.log('Iterable', immutable.Iterable)
-
   var notImplementedError = function(name)  {throw new Error(name + ': Method Not Implemented')}
+
   createClass(IndexedDoublyLinkedList, immutable.Collection.Keyed);
     // @pragma Construction
 
+    // this is a custom constructor that is compiled to a function
+    // with the declassify.js file in /resources/declassify.js
+    // taken from: https://github.com/facebook/immutable-js/blob/0f88549e3ceeb6a8834709b095105aa5e2922b63/resources/declassify.js
+    // look at build to see final output after this and es6-transpilation
+    // WARNING: This does not compile with babel
     function IndexedDoublyLinkedList(value) {
       var valueIsNull = value === null || value === undefined
       var emptyList = emptyIndexedDoublyLinkedList()
       if (valueIsNull) return emptyList
       if (isIndexedDoublyLinkedList(value)) return value
 
+      // TODO: use with mutations
       var newList = emptyList
       var iter = immutable.Iterable.Keyed(value)
       assertNotInfinite(iter.size)
@@ -119,6 +124,7 @@
       return newList
     }
 
+    // like Immutable.Map
     IndexedDoublyLinkedList.of = function() {var SLICE$0 = Array.prototype.slice;var keyValues = SLICE$0.call(arguments, 0);
       // 1, 'a', 2, 'b', 3, '4'
       var newList = emptyIndexedDoublyLinkedList()
@@ -137,7 +143,8 @@
 
     IndexedDoublyLinkedList.prototype.get = function(valueId, notSetValue) {
       // notImplementedError('get')
-      var item = getItemById(this._itemsById, valueId)
+      var itemId = valueId || this._currentItemId
+      var item = getItemById(this._itemsById, itemId)
       if (item) {
         return item.get('value')
       }
@@ -148,8 +155,12 @@
       return updateValueInItemsById(this, valueId, value)
     };
 
-    IndexedDoublyLinkedList.prototype.remove = function() {
-      notImplementedError('remove')
+    IndexedDoublyLinkedList.prototype.remove = function(valueId) {
+      var item = this._itemsById.get(valueId)
+      if (item) {
+        return deleteItemFromList(this, item)
+      }
+      return this
     };
 
     // List Methods
@@ -162,15 +173,26 @@
 
     // adds to back
     IndexedDoublyLinkedList.prototype.pop = function() {
-      notImplementedError('pop')
+      return this.remove(this._lastItemId)
     };
 
-    IndexedDoublyLinkedList.prototype.unshift = function() {
-      notImplementedError('unshift')
+    IndexedDoublyLinkedList.prototype.prepend = function(value, key) {
+      var item = makeListItem(value, key)
+      return prependItemToList(item, this)
+    };
+
+    // TODO: use with mutations
+    IndexedDoublyLinkedList.prototype.unshift = function(value) {
+      var newList = this
+      var iter = immutable.Iterable.Keyed(value)
+      assertNotInfinite(iter.size)
+      iter.forEach(function(v, k)  {return newList = newList.prepend(v, k)})
+
+      return newList
     };
 
     IndexedDoublyLinkedList.prototype.shift = function() {
-      notImplementedError('shift')
+      return this.remove(this._firstItemId)
     };
 
     IndexedDoublyLinkedList.prototype.swap = function() {
@@ -190,11 +212,11 @@
     };
 
     IndexedDoublyLinkedList.prototype.getNext = function() {
-      notImplementedError('getBetween')
+      notImplementedError('getNext')
     };
 
     IndexedDoublyLinkedList.prototype.getPrev = function() {
-      notImplementedError('getBetween')
+      notImplementedError('getPrev')
     };
 
     IndexedDoublyLinkedList.prototype.deleteBetween = function() {
@@ -283,7 +305,7 @@
 
   var updateValueInItemsById = function(dlList, itemId, value)  {
     var item = dlList._itemsById.get(itemId)
-    var newItem = setValueOnItem(value, item)
+    var newItem = setFieldOnItem(item, 'value', value)
     var newItemsById = dlList._itemsById.set(itemId, newItem)
     return makeIndexedDoublyLinkedList(newItemsById, dlList._firstItemId, dlList._lastItemId, 
       dlList._currentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
@@ -319,12 +341,16 @@
 
   }
 
+  // Used for setting prototype methods that IE8 chokes on.
+  var DELETE = 'delete';
   var IS_DOUBLY_LINKED_LIST_SENTINEL = '@@__IMMUTABLE_DOUBLY_LINKED_LIST__@@';
 
   var IndexedDoublyLinkedListPrototype = IndexedDoublyLinkedList.prototype
-  IndexedDoublyLinkedListPrototype['DELETE'] = IndexedDoublyLinkedListPrototype.remove;
+  IndexedDoublyLinkedListPrototype[DELETE] = IndexedDoublyLinkedListPrototype.remove;
   IndexedDoublyLinkedListPrototype[IS_DOUBLY_LINKED_LIST_SENTINEL] = true;
 
+
+  // adding to Prototype so that subclassing works
   var MapPrototype = immutable.Map.prototype
   IndexedDoublyLinkedListPrototype.setIn = MapPrototype.setIn;
   IndexedDoublyLinkedListPrototype.deleteIn =
@@ -354,11 +380,52 @@
     return item
   }
 
-  var addNewItemAtEndOfList = function(itemsById, prevItemId, item)  {
+  var deleteItemFromList = function(dlList, item)  {
     var itemId = item.get('id')
-    var newItemsById = itemsById.setIn([prevItemId, 'nextItemId'], itemId)
+    var newItemsById = dlList._itemsById.delete(itemId)
+
+    var itemNext = item.get('nextItemId')
+    var itemPrev = item.get('prevItemId')
+
+    // update the previous item's 'next' field
+    // to point to the deleted item's 'next' field
+    if (itemPrev) newItemsById = setFieldOnItemInMap(newItemsById, itemPrev, 'nextItemId', itemNext)
+
+    // update the next item's 'prev' field
+    // to point to the deleted item's 'prev' field
+    if (itemNext) newItemsById = setFieldOnItemInMap(newItemsById, itemNext, 'prevItemId', itemPrev)
+
+
+    // handle deleted cursor
+
+    // update _lastItemId pointer
+    var newLastItemId = dlList._lastItemId === itemId ? itemPrev : dlList._lastItemId
+
+    // update _firstItemId pointer
+    var newFirstItemId = dlList._firstItemId === itemId ? itemNext : dlList._firstItemId
     
-    var newItem = setPrevItemIdOnItem(prevItemId, item)
+    // update _currentItemId pointer
+    var newCurrentItemId = dlList._currentItemId === itemId ? undefined : dlList._currentItemId
+    
+    return makeIndexedDoublyLinkedList(newItemsById, newFirstItemId, newLastItemId, 
+      newCurrentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
+  }
+
+  var addNewItemAtEndOfList = function(itemsById, lastItemId, item)  {
+    var itemId = item.get('id')
+    var newItemsById = itemsById.setIn([lastItemId, 'nextItemId'], itemId)
+    
+    var newItem = setFieldOnItem(item, 'prevItemId', lastItemId)
+    newItemsById = newItemsById.set(itemId, newItem)
+    
+    return newItemsById
+  }
+
+  var addNewItemAtFrontOfList = function(itemsById, firstItemId, item)  {
+    var itemId = item.get('id')
+    var newItemsById = itemsById.setIn([firstItemId, 'prevItemId'], itemId)
+    
+    var newItem = setFieldOnItem(item, 'nextItemId', firstItemId)
     newItemsById = newItemsById.set(itemId, newItem)
     
     return newItemsById
@@ -371,7 +438,7 @@
     if (!_firstItemId && !_lastItemId) {
       var newItemsById = _itemsById.set(itemId, item)
       return makeIndexedDoublyLinkedList(newItemsById, itemId, itemId, 
-        dlList._currentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
+        itemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
     }
     else if (_lastItemId) {
       var newItemsById$0 = addNewItemAtEndOfList(_itemsById, _lastItemId, item)
@@ -385,12 +452,36 @@
     return dlList
   }
 
-  var setPrevItemIdOnItem = function(prevItemId, item)  {
-    return item.set('prevItemId', prevItemId)
+  var prependItemToList = function(item, dlList)  {
+    var _firstItemId = dlList._firstItemId, _lastItemId = dlList._lastItemId, _itemsById = dlList._itemsById
+    var itemId = item.get('id')
+    // handle empty list
+    if (!_firstItemId && !_lastItemId) {
+      var newItemsById = _itemsById.set(itemId, item)
+      return makeIndexedDoublyLinkedList(newItemsById, itemId, itemId, 
+        itemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
+    }
+    else if (_firstItemId) {
+      var newItemsById$1 = addNewItemAtFrontOfList(_itemsById, _firstItemId, item)
+      return makeIndexedDoublyLinkedList(newItemsById$1, itemId, _lastItemId, 
+        dlList._currentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
+    }
+    else {
+      throw new Error('End of List Not Found')
+    }
+
+    return dlList
   }
 
-  var setValueOnItem = function(value, item)  {
-    return item.set('value', value)
+
+  // itemsById methods
+  var setFieldOnItemInMap = function(map, itemId, fieldName, fieldValue)  {
+    return map.setIn([itemId, fieldName], fieldValue)
+  }
+
+  // item methods
+  var setFieldOnItem = function(item, fieldName, fieldValue)  {
+    return item.set(fieldName, fieldValue)
   }
 
   // factory pattern
