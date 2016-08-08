@@ -78,9 +78,21 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
     return pushItemOnList(item, this)
   }
 
-  // adds to back
+  // adds to end
+  pushMany(value) {
+    return this.concat(value)
+  }
+
+  // remove to back
   pop() {
     return this.remove(this._lastItemId)
+  }
+
+  popMany(num) {
+    if (num <= 0) return this
+    let newList = this
+    while (num--) newList = newList.pop()
+    return newList
   }
 
   prepend(value, key) {
@@ -100,6 +112,16 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
 
   shift() {
     return this.remove(this._firstItemId)
+  }
+
+  concat(dlList) {
+    // only works when they have unique keys
+    let newList = this
+    dlList.forEach((val, key) => {
+      if (newList.get(key)) throw new Error('Cannot concat lists with the same keys')
+      newList = newList.push(val, key)
+    })
+    return newList
   }
 
   swap(valueId1, valueId2) {
@@ -167,6 +189,17 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
     if (afterId === this._lastItemId) return this.push(value, key)
     const newItem = makeListItem(value, key)
     return insertItemAfterItem(this, afterItem, newItem)
+  }
+
+  insertManyAfter(afterId, value) {
+    let newList = this
+    let lastId = afterId
+    value.forEach((val, key) => {
+      if (newList.get(key)) throw new Error('Error with .insertManyAfer, cannot insert item with the same key: ' + key)
+      newList = newList.insertAfter(lastId, val, key)
+      lastId = key
+    })
+    return newList
   }
 
   insertBefore(beforeId, value, key) {
@@ -352,6 +385,10 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
       return this;
     }
     return emptyIndexedDoublyLinkedList();
+  }
+
+  copy() {
+    return makeCopy(this)
   }
 
   __iterator(type, reverse) {
@@ -636,6 +673,11 @@ const makeIndexedDoublyLinkedList = (itemsById, firstItemId, lastItemId, current
   dlList.__hash = hash;
   dlList.__altered = false;
   return dlList;
+}
+
+const makeCopy = (dlList) => {
+  return makeIndexedDoublyLinkedList(dlList._itemsById, dlList._firstItemId, dlList._lastItemId, 
+      dlList._currentItemId, dlList._idFn, dlList._ownerID, dlList.__hash)
 }
 
 // singleton pattern

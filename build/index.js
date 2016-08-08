@@ -171,9 +171,21 @@
       return pushItemOnList(item, this)
     };
 
-    // adds to back
+    // adds to end
+    IndexedDoublyLinkedList.prototype.pushMany = function(value) {
+      return this.concat(value)
+    };
+
+    // remove to back
     IndexedDoublyLinkedList.prototype.pop = function() {
       return this.remove(this._lastItemId)
+    };
+
+    IndexedDoublyLinkedList.prototype.popMany = function(num) {
+      if (num <= 0) return this
+      var newList = this
+      while (num--) newList = newList.pop()
+      return newList
     };
 
     IndexedDoublyLinkedList.prototype.prepend = function(value, key) {
@@ -193,6 +205,16 @@
 
     IndexedDoublyLinkedList.prototype.shift = function() {
       return this.remove(this._firstItemId)
+    };
+
+    IndexedDoublyLinkedList.prototype.concat = function(dlList) {
+      // only works when they have unique keys
+      var newList = this
+      dlList.forEach(function(val, key)  {
+        if (newList.get(key)) throw new Error('Cannot concat lists with the same keys')
+        newList = newList.push(val, key)
+      })
+      return newList
     };
 
     IndexedDoublyLinkedList.prototype.swap = function(valueId1, valueId2) {
@@ -260,6 +282,17 @@
       if (afterId === this._lastItemId) return this.push(value, key)
       var newItem = makeListItem(value, key)
       return insertItemAfterItem(this, afterItem, newItem)
+    };
+
+    IndexedDoublyLinkedList.prototype.insertManyAfter = function(afterId, value) {
+      var newList = this
+      var lastId = afterId
+      value.forEach(function(val, key)  {
+        if (newList.get(key)) throw new Error('Error with .insertManyAfer, cannot insert item with the same key: ' + key)
+        newList = newList.insertAfter(lastId, val, key)
+        lastId = key
+      })
+      return newList
     };
 
     IndexedDoublyLinkedList.prototype.insertBefore = function(beforeId, value, key) {
@@ -445,6 +478,10 @@
         return this;
       }
       return emptyIndexedDoublyLinkedList();
+    };
+
+    IndexedDoublyLinkedList.prototype.copy = function() {
+      return makeCopy(this)
     };
 
     IndexedDoublyLinkedList.prototype.__iterator = function(type, reverse) {
@@ -729,6 +766,11 @@
     dlList.__hash = hash;
     dlList.__altered = false;
     return dlList;
+  }
+
+  var makeCopy = function(dlList)  {
+    return makeIndexedDoublyLinkedList(dlList._itemsById, dlList._firstItemId, dlList._lastItemId, 
+        dlList._currentItemId, dlList._idFn, dlList._ownerID, dlList.__hash)
   }
 
   // singleton pattern
