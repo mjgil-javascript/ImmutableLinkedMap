@@ -105,7 +105,7 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
   swap(valueId1, valueId2) {
     const item1 = this._itemsById.get(valueId1)
     const item2 = this._itemsById.get(valueId2)
-    
+
     if (!item1) itemNotFoundError(valueId1)
     if (!item2) itemNotFoundError(valueId2)
 
@@ -179,7 +179,39 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
 
 
   getBetween(valueId1, valueId2, includeStart, includeEnd) {
-    notImplementedError('getBetween')
+    const item1 = this._itemsById.get(valueId1)
+    const item2 = this._itemsById.get(valueId2)
+
+    if (!item1) itemNotFoundError(valueId1)
+    if (!item2) itemNotFoundError(valueId2)
+
+    let newList = emptyIndexedDoublyLinkedList()
+    const iter = iterateList(this)
+    let obj = iter.next()
+
+    let aggregationStarted = false
+    while (!obj.done) {
+      let item = obj.value
+      let id = obj.key
+    
+      if (id === valueId1 || id === valueId2) {
+        if (!aggregationStarted) {
+          if (includeStart) newList = newList.push(item.get('value'), id)          
+          aggregationStarted = true
+        }
+        else {
+          if (includeEnd) newList = newList.push(item.get('value'), id)
+          break
+        }
+      }
+      else {
+        if (aggregationStarted) {
+          newList = newList.push(item.get('value'), id)
+        }
+      }
+      obj = iter.next()
+    }
+    return newList;
   }
 
   getAfter(valueId) {
@@ -188,6 +220,23 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
 
   getBefore(valueId) {
     notImplementedError('getPrev')
+  }
+
+  reverse() {
+    let newItemsById = Map()
+    this._itemsById.forEach((item) => {
+      const itemNext = item.get('nextItemId')
+      const itemPrev = item.get('prevItemId')
+
+      let newItem = item
+      newItem = newItem.set('nextItemId', itemPrev)
+      newItem = newItem.set('prevItemId', itemNext)
+
+      newItemsById = newItemsById.set(item.get('id'), newItem)
+    })
+
+    return makeIndexedDoublyLinkedList(newItemsById, this._lastItemId, this._firstItemId, 
+      this._currentItemId, this._idFn, this.__ownerID, this.__hash)
   }
 
   first() {
