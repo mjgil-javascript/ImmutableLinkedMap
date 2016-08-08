@@ -68,3 +68,29 @@ console.log('getBefore:first', dlList.getBefore(1))
 console.log('deleteBetween', dlList.deleteBetween(1,3))
 console.log('deleteBetween', dlList.deleteBetween(1,3,true))
 console.log('deleteBetween', dlList.deleteBetween(1,3,true,true))
+console.log('copy:areSame', dlList.copy() === dlList)
+console.log('copy:sameItems', dlList.copy()._itemsById === dlList._itemsById)
+try {
+  console.log('concat', dlList.getBetween(1,3).concat(dlList))
+}
+catch(e) {
+  console.log('error caught: ' + e)
+}
+console.log('concat:unique', dlList.getBetween(1,3).concat(dlList.getBetween(2,4,false,true)))
+try {
+  console.log('pushMany', dlList.getBetween(1,3).pushMany(dlList))
+}
+catch(e) {
+  console.log('error caught: ' + e)
+}
+console.log('pushMany:unique', dlList.getBetween(1,3).pushMany(dlList.getBetween(2,4,false,true)))
+console.log('popMany', dlList.popMany(1))
+console.log('popMany', dlList.popMany(2))
+console.log('popMany', dlList.popMany(3))
+try {
+  console.log('insertManyAfter', dlList.insertManyAfter(1, dlList))
+}
+catch(e) {
+  console.log('error caught: ' + e)
+}
+console.log('insertManyAfter', dlList.popMany(3).insertManyAfter(1, dlList.getBetween(1,4)))
