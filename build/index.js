@@ -99,7 +99,6 @@
     );
   }
 
-  var notImplementedError = function(name)  {throw new Error(name + ': Method Not Implemented')}
   var itemNotFoundError = function(id)  {throw new Error('Item with id: ' + id + ' was not found')}
 
   createClass(IndexedDoublyLinkedList, immutable.Collection.Keyed);
@@ -144,7 +143,7 @@
 
     IndexedDoublyLinkedList.prototype.get = function(valueId, notSetValue) {
       // notImplementedError('get')
-      var itemId = valueId || this._currentItemId
+      var itemId = typeof valueId === undefined ? this._currentItemId : valueId
       var item = getItemById(this._itemsById, itemId)
       if (item) {
         return item.get('value')
@@ -309,11 +308,15 @@
     };
 
     IndexedDoublyLinkedList.prototype.getAfter = function(valueId) {
-      notImplementedError('getNext')
+      var item = this._itemsById.get(valueId)
+      var nextItemId = item.get('nextItemId')
+      return this.get(nextItemId)
     };
 
     IndexedDoublyLinkedList.prototype.getBefore = function(valueId) {
-      notImplementedError('getPrev')
+      var item = this._itemsById.get(valueId)
+      var prevItemId = item.get('prevItemId')
+      return this.get(prevItemId)
     };
 
     IndexedDoublyLinkedList.prototype.reverse = function() {
@@ -341,8 +344,48 @@
       return this.get(this._lastItemId)
     };
 
-    IndexedDoublyLinkedList.prototype.deleteBetween = function(valueId1, valueId2, includeStart, includeEnd) {
-      notImplementedError('deleteBetween')
+    IndexedDoublyLinkedList.prototype.deleteBetween = function(valueId1, valueId2, deleteStart, deleteEnd) {
+      var item1 = this._itemsById.get(valueId1)
+      var item2 = this._itemsById.get(valueId2)
+
+      if (!item1) itemNotFoundError(valueId1)
+      if (!item2) itemNotFoundError(valueId2)
+
+      var newList = emptyIndexedDoublyLinkedList()
+      var iter = iterateList(this)
+      var obj = iter.next()
+
+      var aggregationStopped = false
+      while (!obj.done) {
+        var item = obj.value
+        var id = obj.key
+      
+        if (id === valueId1 || id === valueId2) {
+          if (!aggregationStopped) {
+            aggregationStopped = true
+            if (deleteStart) {
+              obj = iter.next()
+              continue
+            }
+            newList = newList.push(item.get('value'), id)
+          }
+          else {
+            aggregationStopped = false
+            if (deleteEnd) {
+              obj = iter.next()
+              continue
+            }
+            newList = newList.push(item.get('value'), id)
+          }
+        }
+        else {
+          if (!aggregationStopped) {
+            newList = newList.push(item.get('value'), id)
+          }
+        }
+        obj = iter.next()
+      }
+      return newList
     };
 
     // moves to next

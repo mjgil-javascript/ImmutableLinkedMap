@@ -50,7 +50,7 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
 
   get(valueId, notSetValue) {
     // notImplementedError('get')
-    const itemId = valueId || this._currentItemId
+    const itemId = typeof valueId === undefined ? this._currentItemId : valueId
     const item = getItemById(this._itemsById, itemId)
     if (item) {
       return item.get('value')
@@ -215,11 +215,15 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
   }
 
   getAfter(valueId) {
-    notImplementedError('getNext')
+    const item = this._itemsById.get(valueId)
+    const nextItemId = item.get('nextItemId')
+    return this.get(nextItemId)
   }
 
   getBefore(valueId) {
-    notImplementedError('getPrev')
+    const item = this._itemsById.get(valueId)
+    const prevItemId = item.get('prevItemId')
+    return this.get(prevItemId)
   }
 
   reverse() {
@@ -247,8 +251,48 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
     return this.get(this._lastItemId)
   }
 
-  deleteBetween(valueId1, valueId2, includeStart, includeEnd) {
-    notImplementedError('deleteBetween')
+  deleteBetween(valueId1, valueId2, deleteStart, deleteEnd) {
+    const item1 = this._itemsById.get(valueId1)
+    const item2 = this._itemsById.get(valueId2)
+
+    if (!item1) itemNotFoundError(valueId1)
+    if (!item2) itemNotFoundError(valueId2)
+
+    let newList = emptyIndexedDoublyLinkedList()
+    const iter = iterateList(this)
+    let obj = iter.next()
+
+    let aggregationStopped = false
+    while (!obj.done) {
+      let item = obj.value
+      let id = obj.key
+    
+      if (id === valueId1 || id === valueId2) {
+        if (!aggregationStopped) {
+          aggregationStopped = true
+          if (deleteStart) {
+            obj = iter.next()
+            continue
+          }
+          newList = newList.push(item.get('value'), id)
+        }
+        else {
+          aggregationStopped = false
+          if (deleteEnd) {
+            obj = iter.next()
+            continue
+          }
+          newList = newList.push(item.get('value'), id)
+        }
+      }
+      else {
+        if (!aggregationStopped) {
+          newList = newList.push(item.get('value'), id)
+        }
+      }
+      obj = iter.next()
+    }
+    return newList
   }
 
   // moves to next
