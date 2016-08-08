@@ -99,7 +99,7 @@
     );
   }
 
-  var notImplementedError = function(name)  {throw new Error(name + ': Method Not Implemented')}
+  var itemNotFoundError = function(id)  {throw new Error('Item with id: ' + id + ' was not found')}
 
   createClass(IndexedDoublyLinkedList, immutable.Collection.Keyed);
     // @pragma Construction
@@ -143,7 +143,7 @@
 
     IndexedDoublyLinkedList.prototype.get = function(valueId, notSetValue) {
       // notImplementedError('get')
-      var itemId = valueId || this._currentItemId
+      var itemId = typeof valueId === undefined ? this._currentItemId : valueId
       var item = getItemById(this._itemsById, itemId)
       if (item) {
         return item.get('value')
@@ -195,54 +195,239 @@
       return this.remove(this._firstItemId)
     };
 
-    IndexedDoublyLinkedList.prototype.swap = function() {
-      notImplementedError('swap')
+    IndexedDoublyLinkedList.prototype.swap = function(valueId1, valueId2) {
+      var item1 = this._itemsById.get(valueId1)
+      var item2 = this._itemsById.get(valueId2)
+
+      if (!item1) itemNotFoundError(valueId1)
+      if (!item2) itemNotFoundError(valueId2)
+
+      var item1Next = item1.get('nextItemId')
+      var item1Prev = item1.get('prevItemId')
+      var item1Value = item1.get('value')
+      var item2Next = item2.get('nextItemId')
+      var item2Prev = item2.get('prevItemId')
+      var item2Value = item2.get('value')
+      
+
+      if (valueId1 === this._firstItemId) {
+        var newList = this.remove(valueId2)
+        newList = newList.prepend(item2.get('value'), valueId2)
+        newList = newList.remove(valueId1)
+        if (item2Next) return newList.insertBefore(item2Next, item1Value, valueId1)
+        return newList.push(item1Value, valueId1)
+      }
+      else if (valueId2 === this._firstItemId) {
+        var newList$0 = this.remove(valueId1)
+        newList$0 = newList$0.prepend(item1Value, valueId1)
+        newList$0 = newList$0.remove(valueId2)
+        if (item1Next) return newList$0.insertBefore(item1Next, item2Value, valueId2)
+        return newList$0.push(item2Value, valueId2)
+      }
+      else if (valueId1 === this._lastItemId) {
+        var newList$1 = this.remove(valueId2)
+        newList$1 = newList$1.push(item2.get('value'), valueId2)
+        newList$1 = newList$1.remove(valueId1)
+        if (item2Prev) return newList$1.insertAfter(item2Prev, item1Value, valueId1)
+        return newList$1.prepend(item1Value, valueId1)
+      }
+      else if (valueId2 === this._lastItemId) {
+        var newList$2 = this.remove(valueId1)
+        newList$2 = newList$2.push(item1Value, valueId1)
+        newList$2 = newList$2.remove(valueId2)
+        if (item1Prev) return newList$2.insertAfter(item1Prev, item2Value, valueId2)
+        return newList$2.prepend(item2Value, valueId2)
+      }
+      else if (item1.get('nextItemId') !== valueId2) {
+        var newList$3 = this.remove(valueId2)
+        newList$3 = newList$3.insertBefore(item1.get('nextItemId'), item2.get('value'), valueId2)
+        newList$3 = newList$3.remove(valueId1)
+        return newList$3.insertAfter(item2.get('prevItemId'), item1Value, valueId1)
+      }
+      else if (item2.get('nextItemId') !== valueId1) {
+        var newList$4 = this.remove(valueId1)
+        newList$4 = newList$4.insertBefore(item2.get('nextItemId'), item1Value, valueId1)
+        newList$4 = newList$4.remove(valueId2)
+        return newList$4.insertAfter(item1.get('prevItemId'), item2.get('value'), valueId2)
+      }
+
+      throw new Error('Swap case not handled -- ' + valueId1 + ' ' + valueId2)
     };
 
-    IndexedDoublyLinkedList.prototype.insertAfter = function() {
-      notImplementedError('insertAfter')
+    IndexedDoublyLinkedList.prototype.insertAfter = function(afterId, value, key) {
+      var afterItem = this._itemsById.get(afterId)
+      if (!afterItem) itemNotFoundError(afterId)
+      if (afterId === this._lastItemId) return this.push(value, key)
+      var newItem = makeListItem(value, key)
+      return insertItemAfterItem(this, afterItem, newItem)
     };
 
-    IndexedDoublyLinkedList.prototype.insertBefore = function() {
-      notImplementedError('insertBefore')
+    IndexedDoublyLinkedList.prototype.insertBefore = function(beforeId, value, key) {
+      var beforeItem = this._itemsById.get(beforeId)
+      if (!beforeItem) itemNotFoundError(beforeId)
+      if (beforeId === this._firstItemId) return this.prepend(value, key)
+      var newItem = makeListItem(value, key)
+      return insertItemBeforeItem(this, beforeItem, newItem)
     };
 
-    IndexedDoublyLinkedList.prototype.getBetween = function() {
-      notImplementedError('getBetween')
+
+    IndexedDoublyLinkedList.prototype.getBetween = function(valueId1, valueId2, includeStart, includeEnd) {
+      var item1 = this._itemsById.get(valueId1)
+      var item2 = this._itemsById.get(valueId2)
+
+      if (!item1) itemNotFoundError(valueId1)
+      if (!item2) itemNotFoundError(valueId2)
+
+      var newList = emptyIndexedDoublyLinkedList()
+      var iter = iterateList(this)
+      var obj = iter.next()
+
+      var aggregationStarted = false
+      while (!obj.done) {
+        var item = obj.value
+        var id = obj.key
+      
+        if (id === valueId1 || id === valueId2) {
+          if (!aggregationStarted) {
+            if (includeStart) newList = newList.push(item.get('value'), id)          
+            aggregationStarted = true
+          }
+          else {
+            if (includeEnd) newList = newList.push(item.get('value'), id)
+            break
+          }
+        }
+        else {
+          if (aggregationStarted) {
+            newList = newList.push(item.get('value'), id)
+          }
+        }
+        obj = iter.next()
+      }
+      return newList;
     };
 
-    IndexedDoublyLinkedList.prototype.getNext = function() {
-      notImplementedError('getNext')
+    IndexedDoublyLinkedList.prototype.getAfter = function(valueId) {
+      var item = this._itemsById.get(valueId)
+      var nextItemId = item.get('nextItemId')
+      return this.get(nextItemId)
     };
 
-    IndexedDoublyLinkedList.prototype.getPrev = function() {
-      notImplementedError('getPrev')
+    IndexedDoublyLinkedList.prototype.getBefore = function(valueId) {
+      var item = this._itemsById.get(valueId)
+      var prevItemId = item.get('prevItemId')
+      return this.get(prevItemId)
     };
 
-    IndexedDoublyLinkedList.prototype.deleteBetween = function() {
-      notImplementedError('deleteBetween')
+    IndexedDoublyLinkedList.prototype.reverse = function() {
+      var newItemsById = immutable.Map()
+      this._itemsById.forEach(function(item)  {
+        var itemNext = item.get('nextItemId')
+        var itemPrev = item.get('prevItemId')
+
+        var newItem = item
+        newItem = newItem.set('nextItemId', itemPrev)
+        newItem = newItem.set('prevItemId', itemNext)
+
+        newItemsById = newItemsById.set(item.get('id'), newItem)
+      })
+
+      return makeIndexedDoublyLinkedList(newItemsById, this._lastItemId, this._firstItemId, 
+        this._currentItemId, this._idFn, this.__ownerID, this.__hash)
+    };
+
+    IndexedDoublyLinkedList.prototype.first = function() {
+      return this.get(this._firstItemId)
+    };
+
+    IndexedDoublyLinkedList.prototype.last = function() {
+      return this.get(this._lastItemId)
+    };
+
+    IndexedDoublyLinkedList.prototype.deleteBetween = function(valueId1, valueId2, deleteStart, deleteEnd) {
+      var item1 = this._itemsById.get(valueId1)
+      var item2 = this._itemsById.get(valueId2)
+
+      if (!item1) itemNotFoundError(valueId1)
+      if (!item2) itemNotFoundError(valueId2)
+
+      var newList = emptyIndexedDoublyLinkedList()
+      var iter = iterateList(this)
+      var obj = iter.next()
+
+      var aggregationStopped = false
+      while (!obj.done) {
+        var item = obj.value
+        var id = obj.key
+      
+        if (id === valueId1 || id === valueId2) {
+          if (!aggregationStopped) {
+            aggregationStopped = true
+            if (deleteStart) {
+              obj = iter.next()
+              continue
+            }
+            newList = newList.push(item.get('value'), id)
+          }
+          else {
+            aggregationStopped = false
+            if (deleteEnd) {
+              obj = iter.next()
+              continue
+            }
+            newList = newList.push(item.get('value'), id)
+          }
+        }
+        else {
+          if (!aggregationStopped) {
+            newList = newList.push(item.get('value'), id)
+          }
+        }
+        obj = iter.next()
+      }
+      return newList
     };
 
     // moves to next
     IndexedDoublyLinkedList.prototype.next = function() {
-      notImplementedError('moveToNext')
+      if (!this._currentItemId) return this
+      var item = this._itemsById.get(this._currentItemId)
+      if (item) {
+        var nextItemId = item.get('nextItemId')
+        return updateCurrentItemId(this, nextItemId)
+      }
+      else {
+        throw new Error('._currentItemId points to id that does not exist: ' + this._currentItemId)
+      }
     };
 
     // moves to prev
     IndexedDoublyLinkedList.prototype.prev = function() {
-      notImplementedError('moveToPrev')
+      if (!this._currentItemId) return this
+      var item = this._itemsById.get(this._currentItemId)
+      if (item) {
+        var prevItemId = item.get('prevItemId')
+        return updateCurrentItemId(this, prevItemId)
+      }
+      else {
+        throw new Error('._currentItemId points to id that does not exist: ' + this._currentItemId)
+      }
     };
 
     IndexedDoublyLinkedList.prototype.moveTo = function(valueId) {
-      notImplementedError('moveTo')
+      var item = this._itemsById.get(valueId)
+      if (item) return updateCurrentItemId(this, valueId)
+      return this
     };
 
     IndexedDoublyLinkedList.prototype.moveToStart = function() {
-      notImplementedError('moveToStart')
+      if (!this._firstItemId) return this
+      return updateCurrentItemId(this, this._firstItemId)
     };
 
     IndexedDoublyLinkedList.prototype.moveToEnd = function() {
-      notImplementedError('moveToEnd')
+      if (!this._lastItemId) return this
+      return updateCurrentItemId(this, this._lastItemId)
     };
 
     IndexedDoublyLinkedList.prototype.clear = function() {
@@ -303,12 +488,59 @@
     return itemsById.get(itemId)
   }
 
+  var insertItemBeforeItem = function(dlList, beforeItem, newItem)  {
+    var newItemId = newItem.get('id')
+    var beforeItemId = beforeItem.get('id')
+
+    var beforeItemPrevId = beforeItem.get('prevItemId')
+
+    var newBeforeItem = setFieldOnItem(beforeItem, 'prevItemId', newItemId)
+    var newPrevItem = dlList._itemsById.get(beforeItemPrevId)
+    newPrevItem = setFieldOnItem(newPrevItem, 'nextItemId', newItemId)
+
+    newItem = setFieldOnItem(newItem, 'prevItemId', beforeItemPrevId)
+    newItem = setFieldOnItem(newItem, 'nextItemId', beforeItemId)
+
+    var newItemsById = dlList._itemsById.set(newItemId, newItem)
+    newItemsById = newItemsById.set(beforeItemPrevId, newPrevItem)
+    newItemsById = newItemsById.set(beforeItemId, newBeforeItem)
+    return updateItemsById(dlList, newItemsById)
+  }
+
+  var insertItemAfterItem = function(dlList, afterItem, newItem)  {
+    var newItemId = newItem.get('id')
+    var afterItemId = afterItem.get('id')
+
+    var afterItemNextId = afterItem.get('nextItemId')
+
+    var newAfterItem = setFieldOnItem(afterItem, 'nextItemId', newItemId)
+    var newNextItem = dlList._itemsById.get(afterItemNextId)
+    newNextItem = setFieldOnItem(newNextItem, 'prevItemId', newItemId)
+
+    newItem = setFieldOnItem(newItem, 'nextItemId', afterItemNextId)
+    newItem = setFieldOnItem(newItem, 'prevItemId', afterItemId)
+
+    var newItemsById = dlList._itemsById.set(newItemId, newItem)
+    newItemsById = newItemsById.set(afterItemNextId, newNextItem)
+    newItemsById = newItemsById.set(afterItemId, newAfterItem)
+    return updateItemsById(dlList, newItemsById)
+  }
+
   var updateValueInItemsById = function(dlList, itemId, value)  {
     var item = dlList._itemsById.get(itemId)
     var newItem = setFieldOnItem(item, 'value', value)
     var newItemsById = dlList._itemsById.set(itemId, newItem)
+    return updateItemsById(dlList, newItemsById)
+  }
+
+  var updateItemsById = function(dlList, newItemsById)  {
     return makeIndexedDoublyLinkedList(newItemsById, dlList._firstItemId, dlList._lastItemId, 
       dlList._currentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
+  }
+
+  var updateCurrentItemId = function(dlList, currentItemId)  {
+    return makeIndexedDoublyLinkedList(dlList._itemsById, dlList._firstItemId, dlList._lastItemId, 
+      currentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
   }
 
   var iterateList = function(dlList, reverse)  {

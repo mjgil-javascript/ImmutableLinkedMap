@@ -3,6 +3,7 @@ import { Iterator, iteratorDone, iteratorValue } from './Iterator'
 import assertNotInfinite from './utils/assertNotInfinite'
 
 const notImplementedError = (name) => {throw new Error(name + ': Method Not Implemented')}
+const itemNotFoundError = (id) => {throw new Error('Item with id: ' + id + ' was not found')}
 
 // subclassing Collection.Keyed to get iterable methods to work
 // methods: https://github.com/facebook/immutable-js/blob/0f88549e3ceeb6a8834709b095105aa5e2922b63/src/IterableImpl.js
@@ -49,7 +50,7 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
 
   get(valueId, notSetValue) {
     // notImplementedError('get')
-    const itemId = valueId || this._currentItemId
+    const itemId = typeof valueId === undefined ? this._currentItemId : valueId
     const item = getItemById(this._itemsById, itemId)
     if (item) {
       return item.get('value')
@@ -101,54 +102,239 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
     return this.remove(this._firstItemId)
   }
 
-  swap() {
-    notImplementedError('swap')
+  swap(valueId1, valueId2) {
+    const item1 = this._itemsById.get(valueId1)
+    const item2 = this._itemsById.get(valueId2)
+
+    if (!item1) itemNotFoundError(valueId1)
+    if (!item2) itemNotFoundError(valueId2)
+
+    const item1Next = item1.get('nextItemId')
+    const item1Prev = item1.get('prevItemId')
+    const item1Value = item1.get('value')
+    const item2Next = item2.get('nextItemId')
+    const item2Prev = item2.get('prevItemId')
+    const item2Value = item2.get('value')
+    
+
+    if (valueId1 === this._firstItemId) {
+      let newList = this.remove(valueId2)
+      newList = newList.prepend(item2.get('value'), valueId2)
+      newList = newList.remove(valueId1)
+      if (item2Next) return newList.insertBefore(item2Next, item1Value, valueId1)
+      return newList.push(item1Value, valueId1)
+    }
+    else if (valueId2 === this._firstItemId) {
+      let newList = this.remove(valueId1)
+      newList = newList.prepend(item1Value, valueId1)
+      newList = newList.remove(valueId2)
+      if (item1Next) return newList.insertBefore(item1Next, item2Value, valueId2)
+      return newList.push(item2Value, valueId2)
+    }
+    else if (valueId1 === this._lastItemId) {
+      let newList = this.remove(valueId2)
+      newList = newList.push(item2.get('value'), valueId2)
+      newList = newList.remove(valueId1)
+      if (item2Prev) return newList.insertAfter(item2Prev, item1Value, valueId1)
+      return newList.prepend(item1Value, valueId1)
+    }
+    else if (valueId2 === this._lastItemId) {
+      let newList = this.remove(valueId1)
+      newList = newList.push(item1Value, valueId1)
+      newList = newList.remove(valueId2)
+      if (item1Prev) return newList.insertAfter(item1Prev, item2Value, valueId2)
+      return newList.prepend(item2Value, valueId2)
+    }
+    else if (item1.get('nextItemId') !== valueId2) {
+      let newList = this.remove(valueId2)
+      newList = newList.insertBefore(item1.get('nextItemId'), item2.get('value'), valueId2)
+      newList = newList.remove(valueId1)
+      return newList.insertAfter(item2.get('prevItemId'), item1Value, valueId1)
+    }
+    else if (item2.get('nextItemId') !== valueId1) {
+      let newList = this.remove(valueId1)
+      newList = newList.insertBefore(item2.get('nextItemId'), item1Value, valueId1)
+      newList = newList.remove(valueId2)
+      return newList.insertAfter(item1.get('prevItemId'), item2.get('value'), valueId2)
+    }
+
+    throw new Error('Swap case not handled -- ' + valueId1 + ' ' + valueId2)
   }
 
-  insertAfter() {
-    notImplementedError('insertAfter')
+  insertAfter(afterId, value, key) {
+    const afterItem = this._itemsById.get(afterId)
+    if (!afterItem) itemNotFoundError(afterId)
+    if (afterId === this._lastItemId) return this.push(value, key)
+    const newItem = makeListItem(value, key)
+    return insertItemAfterItem(this, afterItem, newItem)
   }
 
-  insertBefore() {
-    notImplementedError('insertBefore')
+  insertBefore(beforeId, value, key) {
+    const beforeItem = this._itemsById.get(beforeId)
+    if (!beforeItem) itemNotFoundError(beforeId)
+    if (beforeId === this._firstItemId) return this.prepend(value, key)
+    const newItem = makeListItem(value, key)
+    return insertItemBeforeItem(this, beforeItem, newItem)
   }
 
-  getBetween() {
-    notImplementedError('getBetween')
+
+  getBetween(valueId1, valueId2, includeStart, includeEnd) {
+    const item1 = this._itemsById.get(valueId1)
+    const item2 = this._itemsById.get(valueId2)
+
+    if (!item1) itemNotFoundError(valueId1)
+    if (!item2) itemNotFoundError(valueId2)
+
+    let newList = emptyIndexedDoublyLinkedList()
+    const iter = iterateList(this)
+    let obj = iter.next()
+
+    let aggregationStarted = false
+    while (!obj.done) {
+      let item = obj.value
+      let id = obj.key
+    
+      if (id === valueId1 || id === valueId2) {
+        if (!aggregationStarted) {
+          if (includeStart) newList = newList.push(item.get('value'), id)          
+          aggregationStarted = true
+        }
+        else {
+          if (includeEnd) newList = newList.push(item.get('value'), id)
+          break
+        }
+      }
+      else {
+        if (aggregationStarted) {
+          newList = newList.push(item.get('value'), id)
+        }
+      }
+      obj = iter.next()
+    }
+    return newList;
   }
 
-  getNext() {
-    notImplementedError('getNext')
+  getAfter(valueId) {
+    const item = this._itemsById.get(valueId)
+    const nextItemId = item.get('nextItemId')
+    return this.get(nextItemId)
   }
 
-  getPrev() {
-    notImplementedError('getPrev')
+  getBefore(valueId) {
+    const item = this._itemsById.get(valueId)
+    const prevItemId = item.get('prevItemId')
+    return this.get(prevItemId)
   }
 
-  deleteBetween() {
-    notImplementedError('deleteBetween')
+  reverse() {
+    let newItemsById = Map()
+    this._itemsById.forEach((item) => {
+      const itemNext = item.get('nextItemId')
+      const itemPrev = item.get('prevItemId')
+
+      let newItem = item
+      newItem = newItem.set('nextItemId', itemPrev)
+      newItem = newItem.set('prevItemId', itemNext)
+
+      newItemsById = newItemsById.set(item.get('id'), newItem)
+    })
+
+    return makeIndexedDoublyLinkedList(newItemsById, this._lastItemId, this._firstItemId, 
+      this._currentItemId, this._idFn, this.__ownerID, this.__hash)
+  }
+
+  first() {
+    return this.get(this._firstItemId)
+  }
+
+  last() {
+    return this.get(this._lastItemId)
+  }
+
+  deleteBetween(valueId1, valueId2, deleteStart, deleteEnd) {
+    const item1 = this._itemsById.get(valueId1)
+    const item2 = this._itemsById.get(valueId2)
+
+    if (!item1) itemNotFoundError(valueId1)
+    if (!item2) itemNotFoundError(valueId2)
+
+    let newList = emptyIndexedDoublyLinkedList()
+    const iter = iterateList(this)
+    let obj = iter.next()
+
+    let aggregationStopped = false
+    while (!obj.done) {
+      let item = obj.value
+      let id = obj.key
+    
+      if (id === valueId1 || id === valueId2) {
+        if (!aggregationStopped) {
+          aggregationStopped = true
+          if (deleteStart) {
+            obj = iter.next()
+            continue
+          }
+          newList = newList.push(item.get('value'), id)
+        }
+        else {
+          aggregationStopped = false
+          if (deleteEnd) {
+            obj = iter.next()
+            continue
+          }
+          newList = newList.push(item.get('value'), id)
+        }
+      }
+      else {
+        if (!aggregationStopped) {
+          newList = newList.push(item.get('value'), id)
+        }
+      }
+      obj = iter.next()
+    }
+    return newList
   }
 
   // moves to next
   next() {
-    notImplementedError('moveToNext')
+    if (!this._currentItemId) return this
+    const item = this._itemsById.get(this._currentItemId)
+    if (item) {
+      const nextItemId = item.get('nextItemId')
+      return updateCurrentItemId(this, nextItemId)
+    }
+    else {
+      throw new Error('._currentItemId points to id that does not exist: ' + this._currentItemId)
+    }
   }
 
   // moves to prev
   prev() {
-    notImplementedError('moveToPrev')
+    if (!this._currentItemId) return this
+    const item = this._itemsById.get(this._currentItemId)
+    if (item) {
+      const prevItemId = item.get('prevItemId')
+      return updateCurrentItemId(this, prevItemId)
+    }
+    else {
+      throw new Error('._currentItemId points to id that does not exist: ' + this._currentItemId)
+    }
   }
 
   moveTo(valueId) {
-    notImplementedError('moveTo')
+    const item = this._itemsById.get(valueId)
+    if (item) return updateCurrentItemId(this, valueId)
+    return this
   }
 
   moveToStart() {
-    notImplementedError('moveToStart')
+    if (!this._firstItemId) return this
+    return updateCurrentItemId(this, this._firstItemId)
   }
 
   moveToEnd() {
-    notImplementedError('moveToEnd')
+    if (!this._lastItemId) return this
+    return updateCurrentItemId(this, this._lastItemId)
   }
 
   clear() {
@@ -209,12 +395,59 @@ const getItemById = (itemsById, itemId) => {
   return itemsById.get(itemId)
 }
 
+const insertItemBeforeItem = (dlList, beforeItem, newItem) => {
+  const newItemId = newItem.get('id')
+  const beforeItemId = beforeItem.get('id')
+
+  const beforeItemPrevId = beforeItem.get('prevItemId')
+
+  const newBeforeItem = setFieldOnItem(beforeItem, 'prevItemId', newItemId)
+  let newPrevItem = dlList._itemsById.get(beforeItemPrevId)
+  newPrevItem = setFieldOnItem(newPrevItem, 'nextItemId', newItemId)
+
+  newItem = setFieldOnItem(newItem, 'prevItemId', beforeItemPrevId)
+  newItem = setFieldOnItem(newItem, 'nextItemId', beforeItemId)
+
+  let newItemsById = dlList._itemsById.set(newItemId, newItem)
+  newItemsById = newItemsById.set(beforeItemPrevId, newPrevItem)
+  newItemsById = newItemsById.set(beforeItemId, newBeforeItem)
+  return updateItemsById(dlList, newItemsById)
+}
+
+const insertItemAfterItem = (dlList, afterItem, newItem) => {
+  const newItemId = newItem.get('id')
+  const afterItemId = afterItem.get('id')
+
+  const afterItemNextId = afterItem.get('nextItemId')
+
+  const newAfterItem = setFieldOnItem(afterItem, 'nextItemId', newItemId)
+  let newNextItem = dlList._itemsById.get(afterItemNextId)
+  newNextItem = setFieldOnItem(newNextItem, 'prevItemId', newItemId)
+
+  newItem = setFieldOnItem(newItem, 'nextItemId', afterItemNextId)
+  newItem = setFieldOnItem(newItem, 'prevItemId', afterItemId)
+
+  let newItemsById = dlList._itemsById.set(newItemId, newItem)
+  newItemsById = newItemsById.set(afterItemNextId, newNextItem)
+  newItemsById = newItemsById.set(afterItemId, newAfterItem)
+  return updateItemsById(dlList, newItemsById)
+}
+
 const updateValueInItemsById = (dlList, itemId, value) => {
   const item = dlList._itemsById.get(itemId)
   const newItem = setFieldOnItem(item, 'value', value)
   const newItemsById = dlList._itemsById.set(itemId, newItem)
+  return updateItemsById(dlList, newItemsById)
+}
+
+const updateItemsById = (dlList, newItemsById) => {
   return makeIndexedDoublyLinkedList(newItemsById, dlList._firstItemId, dlList._lastItemId, 
     dlList._currentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
+}
+
+const updateCurrentItemId = (dlList, currentItemId) => {
+  return makeIndexedDoublyLinkedList(dlList._itemsById, dlList._firstItemId, dlList._lastItemId, 
+    currentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
 }
 
 const iterateList = (dlList, reverse) => {
