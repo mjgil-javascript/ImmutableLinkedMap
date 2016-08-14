@@ -681,9 +681,9 @@ const makeCopy = (dlList) => {
 }
 
 // singleton pattern
-let EMPTY_INDEXED_DOUBLY_LINKED_LIST;
+let EMPTY_LINKED_MAP;
 export const emptyLinkedMap = () => {
-  return EMPTY_INDEXED_DOUBLY_LINKED_LIST || (EMPTY_INDEXED_DOUBLY_LINKED_LIST = makeLinkedMap(Map()));
+  return EMPTY_LINKED_MAP || (EMPTY_LINKED_MAP = makeLinkedMap(Map()));
 }
 
 const updateLinkedMap = (dlList, k, v) => {
