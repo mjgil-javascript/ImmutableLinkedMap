@@ -101,7 +101,7 @@
 
   var itemNotFoundError = function(id)  {throw new Error('Item with id: ' + id + ' was not found')}
 
-  createClass(IndexedDoublyLinkedList, immutable.Collection.Keyed);
+  createClass(LinkedMap, immutable.Collection.Keyed);
     // @pragma Construction
 
     // this is a custom constructor that is compiled to a function
@@ -109,11 +109,11 @@
     // taken from: https://github.com/facebook/immutable-js/blob/0f88549e3ceeb6a8834709b095105aa5e2922b63/resources/declassify.js
     // look at build to see final output after this and es6-transpilation
     // WARNING: This does not compile with babel
-    function IndexedDoublyLinkedList(value) {
+    function LinkedMap(value) {
       var valueIsNull = value === null || value === undefined
-      var emptyList = emptyIndexedDoublyLinkedList()
+      var emptyList = emptyLinkedMap()
       if (valueIsNull) return emptyList
-      if (isIndexedDoublyLinkedList(value)) return value
+      if (isLinkedMap(value)) return value
 
       // TODO: use with mutations
       var newList = emptyList
@@ -125,9 +125,9 @@
     }
 
     // like Immutable.Map
-    IndexedDoublyLinkedList.of = function() {var SLICE$0 = Array.prototype.slice;var keyValues = SLICE$0.call(arguments, 0);
+    LinkedMap.of = function() {var SLICE$0 = Array.prototype.slice;var keyValues = SLICE$0.call(arguments, 0);
       // 1, 'a', 2, 'b', 3, '4'
-      var newList = emptyIndexedDoublyLinkedList()
+      var newList = emptyLinkedMap()
       for (var i = 0; i < keyValues.length; i += 2) {
         if (i + 1 >= keyValues.length) {
           throw new Error('Missing value for key: ' + keyValues[i]);
@@ -137,11 +137,11 @@
       return newList
     };
 
-    IndexedDoublyLinkedList.prototype.toString = function() {
+    LinkedMap.prototype.toString = function() {
       return this.__toString('Doubly Linked List [', ']')
     };
 
-    IndexedDoublyLinkedList.prototype.get = function(valueId, notSetValue) {
+    LinkedMap.prototype.get = function(valueId, notSetValue) {
       // notImplementedError('get')
       var itemId = typeof valueId === undefined ? this._currentItemId : valueId
       var item = getItemById(this._itemsById, itemId)
@@ -151,11 +151,11 @@
       return notSetValue
     };
 
-    IndexedDoublyLinkedList.prototype.set = function(valueId, value) {
+    LinkedMap.prototype.set = function(valueId, value) {
       return updateValueInItemsById(this, valueId, value)
     };
 
-    IndexedDoublyLinkedList.prototype.remove = function(valueId) {
+    LinkedMap.prototype.remove = function(valueId) {
       var item = this._itemsById.get(valueId)
       if (item) {
         return deleteItemFromList(this, item)
@@ -166,35 +166,35 @@
     // List Methods
 
     // adds to end
-    IndexedDoublyLinkedList.prototype.push = function(value, key) {
+    LinkedMap.prototype.push = function(value, key) {
       var item = makeListItem(value, key)
       return pushItemOnList(item, this)
     };
 
     // adds to end
-    IndexedDoublyLinkedList.prototype.pushMany = function(value) {
+    LinkedMap.prototype.pushMany = function(value) {
       return this.concat(value)
     };
 
     // remove to back
-    IndexedDoublyLinkedList.prototype.pop = function() {
+    LinkedMap.prototype.pop = function() {
       return this.remove(this._lastItemId)
     };
 
-    IndexedDoublyLinkedList.prototype.popMany = function(num) {
+    LinkedMap.prototype.popMany = function(num) {
       if (num <= 0) return this
       var newList = this
       while (num--) newList = newList.pop()
       return newList
     };
 
-    IndexedDoublyLinkedList.prototype.prepend = function(value, key) {
+    LinkedMap.prototype.prepend = function(value, key) {
       var item = makeListItem(value, key)
       return prependItemToList(item, this)
     };
 
     // TODO: use with mutations
-    IndexedDoublyLinkedList.prototype.unshift = function(value) {
+    LinkedMap.prototype.unshift = function(value) {
       var newList = this
       var iter = immutable.Iterable.Keyed(value)
       assertNotInfinite(iter.size)
@@ -203,11 +203,11 @@
       return newList
     };
 
-    IndexedDoublyLinkedList.prototype.shift = function() {
+    LinkedMap.prototype.shift = function() {
       return this.remove(this._firstItemId)
     };
 
-    IndexedDoublyLinkedList.prototype.concat = function(dlList) {
+    LinkedMap.prototype.concat = function(dlList) {
       // only works when they have unique keys
       var newList = this
       dlList.forEach(function(val, key)  {
@@ -217,7 +217,7 @@
       return newList
     };
 
-    IndexedDoublyLinkedList.prototype.swap = function(valueId1, valueId2) {
+    LinkedMap.prototype.swap = function(valueId1, valueId2) {
       var item1 = this._itemsById.get(valueId1)
       var item2 = this._itemsById.get(valueId2)
 
@@ -276,7 +276,7 @@
       throw new Error('Swap case not handled -- ' + valueId1 + ' ' + valueId2)
     };
 
-    IndexedDoublyLinkedList.prototype.insertAfter = function(afterId, value, key) {
+    LinkedMap.prototype.insertAfter = function(afterId, value, key) {
       var afterItem = this._itemsById.get(afterId)
       if (!afterItem) itemNotFoundError(afterId)
       if (afterId === this._lastItemId) return this.push(value, key)
@@ -284,7 +284,7 @@
       return insertItemAfterItem(this, afterItem, newItem)
     };
 
-    IndexedDoublyLinkedList.prototype.insertManyAfter = function(afterId, value) {
+    LinkedMap.prototype.insertManyAfter = function(afterId, value) {
       var newList = this
       var lastId = afterId
       value.forEach(function(val, key)  {
@@ -295,7 +295,7 @@
       return newList
     };
 
-    IndexedDoublyLinkedList.prototype.insertBefore = function(beforeId, value, key) {
+    LinkedMap.prototype.insertBefore = function(beforeId, value, key) {
       var beforeItem = this._itemsById.get(beforeId)
       if (!beforeItem) itemNotFoundError(beforeId)
       if (beforeId === this._firstItemId) return this.prepend(value, key)
@@ -304,14 +304,14 @@
     };
 
 
-    IndexedDoublyLinkedList.prototype.getBetween = function(valueId1, valueId2, includeStart, includeEnd) {
+    LinkedMap.prototype.getBetween = function(valueId1, valueId2, includeStart, includeEnd) {
       var item1 = this._itemsById.get(valueId1)
       var item2 = this._itemsById.get(valueId2)
 
       if (!item1) itemNotFoundError(valueId1)
       if (!item2) itemNotFoundError(valueId2)
 
-      var newList = emptyIndexedDoublyLinkedList()
+      var newList = emptyLinkedMap()
       var iter = iterateList(this)
       var obj = iter.next()
 
@@ -340,19 +340,19 @@
       return newList;
     };
 
-    IndexedDoublyLinkedList.prototype.getAfter = function(valueId) {
+    LinkedMap.prototype.getAfter = function(valueId) {
       var item = this._itemsById.get(valueId)
       var nextItemId = item.get('nextItemId')
       return this.get(nextItemId)
     };
 
-    IndexedDoublyLinkedList.prototype.getBefore = function(valueId) {
+    LinkedMap.prototype.getBefore = function(valueId) {
       var item = this._itemsById.get(valueId)
       var prevItemId = item.get('prevItemId')
       return this.get(prevItemId)
     };
 
-    IndexedDoublyLinkedList.prototype.reverse = function() {
+    LinkedMap.prototype.reverse = function() {
       var newItemsById = immutable.Map()
       this._itemsById.forEach(function(item)  {
         var itemNext = item.get('nextItemId')
@@ -365,26 +365,26 @@
         newItemsById = newItemsById.set(item.get('id'), newItem)
       })
 
-      return makeIndexedDoublyLinkedList(newItemsById, this._lastItemId, this._firstItemId, 
+      return makeLinkedMap(newItemsById, this._lastItemId, this._firstItemId, 
         this._currentItemId, this._idFn, this.__ownerID, this.__hash)
     };
 
-    IndexedDoublyLinkedList.prototype.first = function() {
+    LinkedMap.prototype.first = function() {
       return this.get(this._firstItemId)
     };
 
-    IndexedDoublyLinkedList.prototype.last = function() {
+    LinkedMap.prototype.last = function() {
       return this.get(this._lastItemId)
     };
 
-    IndexedDoublyLinkedList.prototype.deleteBetween = function(valueId1, valueId2, deleteStart, deleteEnd) {
+    LinkedMap.prototype.deleteBetween = function(valueId1, valueId2, deleteStart, deleteEnd) {
       var item1 = this._itemsById.get(valueId1)
       var item2 = this._itemsById.get(valueId2)
 
       if (!item1) itemNotFoundError(valueId1)
       if (!item2) itemNotFoundError(valueId2)
 
-      var newList = emptyIndexedDoublyLinkedList()
+      var newList = emptyLinkedMap()
       var iter = iterateList(this)
       var obj = iter.next()
 
@@ -422,7 +422,7 @@
     };
 
     // moves to next
-    IndexedDoublyLinkedList.prototype.next = function() {
+    LinkedMap.prototype.next = function() {
       if (!this._currentItemId) return this
       var item = this._itemsById.get(this._currentItemId)
       if (item) {
@@ -435,7 +435,7 @@
     };
 
     // moves to prev
-    IndexedDoublyLinkedList.prototype.prev = function() {
+    LinkedMap.prototype.prev = function() {
       if (!this._currentItemId) return this
       var item = this._itemsById.get(this._currentItemId)
       if (item) {
@@ -447,23 +447,23 @@
       }
     };
 
-    IndexedDoublyLinkedList.prototype.moveTo = function(valueId) {
+    LinkedMap.prototype.moveTo = function(valueId) {
       var item = this._itemsById.get(valueId)
       if (item) return updateCurrentItemId(this, valueId)
       return this
     };
 
-    IndexedDoublyLinkedList.prototype.moveToStart = function() {
+    LinkedMap.prototype.moveToStart = function() {
       if (!this._firstItemId) return this
       return updateCurrentItemId(this, this._firstItemId)
     };
 
-    IndexedDoublyLinkedList.prototype.moveToEnd = function() {
+    LinkedMap.prototype.moveToEnd = function() {
       if (!this._lastItemId) return this
       return updateCurrentItemId(this, this._lastItemId)
     };
 
-    IndexedDoublyLinkedList.prototype.clear = function() {
+    LinkedMap.prototype.clear = function() {
       if (this.size === 0) {
         return this;
       }
@@ -477,14 +477,14 @@
         this.__altered = true;
         return this;
       }
-      return emptyIndexedDoublyLinkedList();
+      return emptyLinkedMap();
     };
 
-    IndexedDoublyLinkedList.prototype.copy = function() {
+    LinkedMap.prototype.copy = function() {
       return makeCopy(this)
     };
 
-    IndexedDoublyLinkedList.prototype.__iterator = function(type, reverse) {
+    LinkedMap.prototype.__iterator = function(type, reverse) {
       var iter = iterateList(this, reverse);
       return new Iterator(function()  {
         var obj = iter.next();
@@ -494,7 +494,7 @@
       });
     };
 
-    IndexedDoublyLinkedList.prototype.__iterate = function(fn, reverse) {
+    LinkedMap.prototype.__iterate = function(fn, reverse) {
       var iter = iterateList(this, reverse);
       var obj = iter.next();
       while (!obj.done) {
@@ -506,7 +506,7 @@
       return null;
     };
 
-    IndexedDoublyLinkedList.prototype.__ensureOwner = function(ownerID) {
+    LinkedMap.prototype.__ensureOwner = function(ownerID) {
       if (ownerID === this.__ownerID) {
         return this;
       }
@@ -515,7 +515,7 @@
         this.__altered = false;
         return this;
       }
-      return makeIndexedDoublyLinkedList(this._itemsById, this._firstItemId, this._lastItemId, 
+      return makeLinkedMap(this._itemsById, this._firstItemId, this._lastItemId, 
         this._currentItemId, this._idFn, ownerID, this.__hash)
     };
 
@@ -571,12 +571,12 @@
   }
 
   var updateItemsById = function(dlList, newItemsById)  {
-    return makeIndexedDoublyLinkedList(newItemsById, dlList._firstItemId, dlList._lastItemId, 
+    return makeLinkedMap(newItemsById, dlList._firstItemId, dlList._lastItemId, 
       dlList._currentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
   }
 
   var updateCurrentItemId = function(dlList, currentItemId)  {
-    return makeIndexedDoublyLinkedList(dlList._itemsById, dlList._firstItemId, dlList._lastItemId, 
+    return makeLinkedMap(dlList._itemsById, dlList._firstItemId, dlList._lastItemId, 
       currentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
   }
 
@@ -614,29 +614,29 @@
   var DELETE = 'delete';
   var IS_DOUBLY_LINKED_LIST_SENTINEL = '@@__IMMUTABLE_DOUBLY_LINKED_LIST__@@';
 
-  var IndexedDoublyLinkedListPrototype = IndexedDoublyLinkedList.prototype
-  IndexedDoublyLinkedListPrototype[DELETE] = IndexedDoublyLinkedListPrototype.remove;
-  IndexedDoublyLinkedListPrototype[IS_DOUBLY_LINKED_LIST_SENTINEL] = true;
+  var LinkedMapPrototype = LinkedMap.prototype
+  LinkedMapPrototype[DELETE] = LinkedMapPrototype.remove;
+  LinkedMapPrototype[IS_DOUBLY_LINKED_LIST_SENTINEL] = true;
 
 
   // adding to Prototype so that subclassing works
   var MapPrototype = immutable.Map.prototype
-  IndexedDoublyLinkedListPrototype.setIn = MapPrototype.setIn;
-  IndexedDoublyLinkedListPrototype.deleteIn =
-  IndexedDoublyLinkedListPrototype.removeIn = MapPrototype.removeIn;
-  IndexedDoublyLinkedListPrototype.update = MapPrototype.update;
-  IndexedDoublyLinkedListPrototype.updateIn = MapPrototype.updateIn;
-  IndexedDoublyLinkedListPrototype.mergeIn = MapPrototype.mergeIn;
-  IndexedDoublyLinkedListPrototype.mergeDeepIn = MapPrototype.mergeDeepIn;
-  IndexedDoublyLinkedListPrototype.withMutations = MapPrototype.withMutations;
-  IndexedDoublyLinkedListPrototype.asMutable = MapPrototype.asMutable;
-  IndexedDoublyLinkedListPrototype.asImmutable = MapPrototype.asImmutable;
-  IndexedDoublyLinkedListPrototype.wasAltered = MapPrototype.wasAltered;
+  LinkedMapPrototype.setIn = MapPrototype.setIn;
+  LinkedMapPrototype.deleteIn =
+  LinkedMapPrototype.removeIn = MapPrototype.removeIn;
+  LinkedMapPrototype.update = MapPrototype.update;
+  LinkedMapPrototype.updateIn = MapPrototype.updateIn;
+  LinkedMapPrototype.mergeIn = MapPrototype.mergeIn;
+  LinkedMapPrototype.mergeDeepIn = MapPrototype.mergeDeepIn;
+  LinkedMapPrototype.withMutations = MapPrototype.withMutations;
+  LinkedMapPrototype.asMutable = MapPrototype.asMutable;
+  LinkedMapPrototype.asImmutable = MapPrototype.asImmutable;
+  LinkedMapPrototype.wasAltered = MapPrototype.wasAltered;
 
-  var isIndexedDoublyLinkedList = function(maybeIndexedDoublyLinkedList)  {
-    return !!(maybeIndexedDoublyLinkedList && maybeIndexedDoublyLinkedList[IS_DOUBLY_LINKED_LIST_SENTINEL]);
+  var isLinkedMap = function(maybeLinkedMap)  {
+    return !!(maybeLinkedMap && maybeLinkedMap[IS_DOUBLY_LINKED_LIST_SENTINEL]);
   }
-  IndexedDoublyLinkedList.isIndexedDoublyLinkedList = isIndexedDoublyLinkedList;
+  LinkedMap.isLinkedMap = isLinkedMap;
 
   var makeListItem = function(value, key)  {
     var item = immutable.Map({
@@ -676,7 +676,7 @@
     // update _currentItemId pointer
     var newCurrentItemId = dlList._currentItemId === itemId ? undefined : dlList._currentItemId
     
-    return makeIndexedDoublyLinkedList(newItemsById, newFirstItemId, newLastItemId, 
+    return makeLinkedMap(newItemsById, newFirstItemId, newLastItemId, 
       newCurrentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
   }
 
@@ -706,12 +706,12 @@
     // handle empty list
     if (!_firstItemId && !_lastItemId) {
       var newItemsById = _itemsById.set(itemId, item)
-      return makeIndexedDoublyLinkedList(newItemsById, itemId, itemId, 
+      return makeLinkedMap(newItemsById, itemId, itemId, 
         itemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
     }
     else if (_lastItemId) {
       var newItemsById$0 = addNewItemAtEndOfList(_itemsById, _lastItemId, item)
-      return makeIndexedDoublyLinkedList(newItemsById$0, _firstItemId, itemId, 
+      return makeLinkedMap(newItemsById$0, _firstItemId, itemId, 
         dlList._currentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
     }
     else {
@@ -727,12 +727,12 @@
     // handle empty list
     if (!_firstItemId && !_lastItemId) {
       var newItemsById = _itemsById.set(itemId, item)
-      return makeIndexedDoublyLinkedList(newItemsById, itemId, itemId, 
+      return makeLinkedMap(newItemsById, itemId, itemId, 
         itemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
     }
     else if (_firstItemId) {
       var newItemsById$1 = addNewItemAtFrontOfList(_itemsById, _firstItemId, item)
-      return makeIndexedDoublyLinkedList(newItemsById$1, itemId, _lastItemId, 
+      return makeLinkedMap(newItemsById$1, itemId, _lastItemId, 
         dlList._currentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
     }
     else {
@@ -754,8 +754,8 @@
   }
 
   // factory pattern
-  var makeIndexedDoublyLinkedList = function(itemsById, firstItemId, lastItemId, currentItemId, idFn, ownerID, hash)  {
-    var dlList = Object.create(IndexedDoublyLinkedList.prototype);
+  var makeLinkedMap = function(itemsById, firstItemId, lastItemId, currentItemId, idFn, ownerID, hash)  {
+    var dlList = Object.create(LinkedMap.prototype);
     dlList.size = itemsById ? itemsById.size : 0;
     dlList._itemsById = itemsById;
     dlList._firstItemId = firstItemId;
@@ -769,18 +769,18 @@
   }
 
   var makeCopy = function(dlList)  {
-    return makeIndexedDoublyLinkedList(dlList._itemsById, dlList._firstItemId, dlList._lastItemId, 
+    return makeLinkedMap(dlList._itemsById, dlList._firstItemId, dlList._lastItemId, 
         dlList._currentItemId, dlList._idFn, dlList._ownerID, dlList.__hash)
   }
 
   // singleton pattern
   var EMPTY_INDEXED_DOUBLY_LINKED_LIST;
-  var emptyIndexedDoublyLinkedList = function()  {
-    return EMPTY_INDEXED_DOUBLY_LINKED_LIST || (EMPTY_INDEXED_DOUBLY_LINKED_LIST = makeIndexedDoublyLinkedList(immutable.Map()));
+  var emptyLinkedMap = function()  {
+    return EMPTY_INDEXED_DOUBLY_LINKED_LIST || (EMPTY_INDEXED_DOUBLY_LINKED_LIST = makeLinkedMap(immutable.Map()));
   }
 
-  exports.IndexedDoublyLinkedList = IndexedDoublyLinkedList;
-  exports.IndexedDoublyLinkedListPrototype = IndexedDoublyLinkedListPrototype;
-  exports.emptyIndexedDoublyLinkedList = emptyIndexedDoublyLinkedList;
+  exports.LinkedMap = LinkedMap;
+  exports.LinkedMapPrototype = LinkedMapPrototype;
+  exports.emptyLinkedMap = emptyLinkedMap;
 
 }));

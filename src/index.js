@@ -8,7 +8,7 @@ const itemNotFoundError = (id) => {throw new Error('Item with id: ' + id + ' was
 // subclassing Collection.Keyed to get iterable methods to work
 // methods: https://github.com/facebook/immutable-js/blob/0f88549e3ceeb6a8834709b095105aa5e2922b63/src/IterableImpl.js
 // inspiration: https://github.com/facebook/immutable-js/blob/0f88549e3ceeb6a8834709b095105aa5e2922b63/src/Map.js
-export class IndexedDoublyLinkedList extends Collection.Keyed {
+export class LinkedMap extends Collection.Keyed {
   // @pragma Construction
 
   // this is a custom constructor that is compiled to a function
@@ -18,9 +18,9 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
   // WARNING: This does not compile with babel
   constructor(value) {
     const valueIsNull = value === null || value === undefined
-    const emptyList = emptyIndexedDoublyLinkedList()
+    const emptyList = emptyLinkedMap()
     if (valueIsNull) return emptyList
-    if (isIndexedDoublyLinkedList(value)) return value
+    if (isLinkedMap(value)) return value
 
     // TODO: use with mutations
     let newList = emptyList
@@ -34,7 +34,7 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
   // like Immutable.Map
   static of(...keyValues) {
     // 1, 'a', 2, 'b', 3, '4'
-    let newList = emptyIndexedDoublyLinkedList()
+    let newList = emptyLinkedMap()
     for (var i = 0; i < keyValues.length; i += 2) {
       if (i + 1 >= keyValues.length) {
         throw new Error('Missing value for key: ' + keyValues[i]);
@@ -218,7 +218,7 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
     if (!item1) itemNotFoundError(valueId1)
     if (!item2) itemNotFoundError(valueId2)
 
-    let newList = emptyIndexedDoublyLinkedList()
+    let newList = emptyLinkedMap()
     const iter = iterateList(this)
     let obj = iter.next()
 
@@ -272,7 +272,7 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
       newItemsById = newItemsById.set(item.get('id'), newItem)
     })
 
-    return makeIndexedDoublyLinkedList(newItemsById, this._lastItemId, this._firstItemId, 
+    return makeLinkedMap(newItemsById, this._lastItemId, this._firstItemId, 
       this._currentItemId, this._idFn, this.__ownerID, this.__hash)
   }
 
@@ -291,7 +291,7 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
     if (!item1) itemNotFoundError(valueId1)
     if (!item2) itemNotFoundError(valueId2)
 
-    let newList = emptyIndexedDoublyLinkedList()
+    let newList = emptyLinkedMap()
     const iter = iterateList(this)
     let obj = iter.next()
 
@@ -384,7 +384,7 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
       this.__altered = true;
       return this;
     }
-    return emptyIndexedDoublyLinkedList();
+    return emptyLinkedMap();
   }
 
   copy() {
@@ -422,7 +422,7 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
       this.__altered = false;
       return this;
     }
-    return makeIndexedDoublyLinkedList(this._itemsById, this._firstItemId, this._lastItemId, 
+    return makeLinkedMap(this._itemsById, this._firstItemId, this._lastItemId, 
       this._currentItemId, this._idFn, ownerID, this.__hash)
   }
 
@@ -478,12 +478,12 @@ const updateValueInItemsById = (dlList, itemId, value) => {
 }
 
 const updateItemsById = (dlList, newItemsById) => {
-  return makeIndexedDoublyLinkedList(newItemsById, dlList._firstItemId, dlList._lastItemId, 
+  return makeLinkedMap(newItemsById, dlList._firstItemId, dlList._lastItemId, 
     dlList._currentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
 }
 
 const updateCurrentItemId = (dlList, currentItemId) => {
-  return makeIndexedDoublyLinkedList(dlList._itemsById, dlList._firstItemId, dlList._lastItemId, 
+  return makeLinkedMap(dlList._itemsById, dlList._firstItemId, dlList._lastItemId, 
     currentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
 }
 
@@ -521,29 +521,29 @@ const iterateList = (dlList, reverse) => {
 const DELETE = 'delete';
 const IS_DOUBLY_LINKED_LIST_SENTINEL = '@@__IMMUTABLE_DOUBLY_LINKED_LIST__@@';
 
-export var IndexedDoublyLinkedListPrototype = IndexedDoublyLinkedList.prototype
-IndexedDoublyLinkedListPrototype[DELETE] = IndexedDoublyLinkedListPrototype.remove;
-IndexedDoublyLinkedListPrototype[IS_DOUBLY_LINKED_LIST_SENTINEL] = true;
+export var LinkedMapPrototype = LinkedMap.prototype
+LinkedMapPrototype[DELETE] = LinkedMapPrototype.remove;
+LinkedMapPrototype[IS_DOUBLY_LINKED_LIST_SENTINEL] = true;
 
 
 // adding to Prototype so that subclassing works
 const MapPrototype = Map.prototype
-IndexedDoublyLinkedListPrototype.setIn = MapPrototype.setIn;
-IndexedDoublyLinkedListPrototype.deleteIn =
-IndexedDoublyLinkedListPrototype.removeIn = MapPrototype.removeIn;
-IndexedDoublyLinkedListPrototype.update = MapPrototype.update;
-IndexedDoublyLinkedListPrototype.updateIn = MapPrototype.updateIn;
-IndexedDoublyLinkedListPrototype.mergeIn = MapPrototype.mergeIn;
-IndexedDoublyLinkedListPrototype.mergeDeepIn = MapPrototype.mergeDeepIn;
-IndexedDoublyLinkedListPrototype.withMutations = MapPrototype.withMutations;
-IndexedDoublyLinkedListPrototype.asMutable = MapPrototype.asMutable;
-IndexedDoublyLinkedListPrototype.asImmutable = MapPrototype.asImmutable;
-IndexedDoublyLinkedListPrototype.wasAltered = MapPrototype.wasAltered;
+LinkedMapPrototype.setIn = MapPrototype.setIn;
+LinkedMapPrototype.deleteIn =
+LinkedMapPrototype.removeIn = MapPrototype.removeIn;
+LinkedMapPrototype.update = MapPrototype.update;
+LinkedMapPrototype.updateIn = MapPrototype.updateIn;
+LinkedMapPrototype.mergeIn = MapPrototype.mergeIn;
+LinkedMapPrototype.mergeDeepIn = MapPrototype.mergeDeepIn;
+LinkedMapPrototype.withMutations = MapPrototype.withMutations;
+LinkedMapPrototype.asMutable = MapPrototype.asMutable;
+LinkedMapPrototype.asImmutable = MapPrototype.asImmutable;
+LinkedMapPrototype.wasAltered = MapPrototype.wasAltered;
 
-const isIndexedDoublyLinkedList = (maybeIndexedDoublyLinkedList) => {
-  return !!(maybeIndexedDoublyLinkedList && maybeIndexedDoublyLinkedList[IS_DOUBLY_LINKED_LIST_SENTINEL]);
+const isLinkedMap = (maybeLinkedMap) => {
+  return !!(maybeLinkedMap && maybeLinkedMap[IS_DOUBLY_LINKED_LIST_SENTINEL]);
 }
-IndexedDoublyLinkedList.isIndexedDoublyLinkedList = isIndexedDoublyLinkedList;
+LinkedMap.isLinkedMap = isLinkedMap;
 
 const makeListItem = (value, key) => {
   const item = Map({
@@ -583,7 +583,7 @@ const deleteItemFromList = (dlList, item) => {
   // update _currentItemId pointer
   let newCurrentItemId = dlList._currentItemId === itemId ? undefined : dlList._currentItemId
   
-  return makeIndexedDoublyLinkedList(newItemsById, newFirstItemId, newLastItemId, 
+  return makeLinkedMap(newItemsById, newFirstItemId, newLastItemId, 
     newCurrentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
 }
 
@@ -613,12 +613,12 @@ const pushItemOnList = (item, dlList) => {
   // handle empty list
   if (!_firstItemId && !_lastItemId) {
     const newItemsById = _itemsById.set(itemId, item)
-    return makeIndexedDoublyLinkedList(newItemsById, itemId, itemId, 
+    return makeLinkedMap(newItemsById, itemId, itemId, 
       itemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
   }
   else if (_lastItemId) {
     let newItemsById = addNewItemAtEndOfList(_itemsById, _lastItemId, item)
-    return makeIndexedDoublyLinkedList(newItemsById, _firstItemId, itemId, 
+    return makeLinkedMap(newItemsById, _firstItemId, itemId, 
       dlList._currentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
   }
   else {
@@ -634,12 +634,12 @@ const prependItemToList = (item, dlList) => {
   // handle empty list
   if (!_firstItemId && !_lastItemId) {
     const newItemsById = _itemsById.set(itemId, item)
-    return makeIndexedDoublyLinkedList(newItemsById, itemId, itemId, 
+    return makeLinkedMap(newItemsById, itemId, itemId, 
       itemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
   }
   else if (_firstItemId) {
     let newItemsById = addNewItemAtFrontOfList(_itemsById, _firstItemId, item)
-    return makeIndexedDoublyLinkedList(newItemsById, itemId, _lastItemId, 
+    return makeLinkedMap(newItemsById, itemId, _lastItemId, 
       dlList._currentItemId, dlList._idFn, dlList.__ownerID, dlList.__hash)
   }
   else {
@@ -661,8 +661,8 @@ const setFieldOnItem = (item, fieldName, fieldValue) => {
 }
 
 // factory pattern
-const makeIndexedDoublyLinkedList = (itemsById, firstItemId, lastItemId, currentItemId, idFn, ownerID, hash) => {
-  var dlList = Object.create(IndexedDoublyLinkedList.prototype);
+const makeLinkedMap = (itemsById, firstItemId, lastItemId, currentItemId, idFn, ownerID, hash) => {
+  var dlList = Object.create(LinkedMap.prototype);
   dlList.size = itemsById ? itemsById.size : 0;
   dlList._itemsById = itemsById;
   dlList._firstItemId = firstItemId;
@@ -676,17 +676,17 @@ const makeIndexedDoublyLinkedList = (itemsById, firstItemId, lastItemId, current
 }
 
 const makeCopy = (dlList) => {
-  return makeIndexedDoublyLinkedList(dlList._itemsById, dlList._firstItemId, dlList._lastItemId, 
+  return makeLinkedMap(dlList._itemsById, dlList._firstItemId, dlList._lastItemId, 
       dlList._currentItemId, dlList._idFn, dlList._ownerID, dlList.__hash)
 }
 
 // singleton pattern
 let EMPTY_INDEXED_DOUBLY_LINKED_LIST;
-export const emptyIndexedDoublyLinkedList = () => {
-  return EMPTY_INDEXED_DOUBLY_LINKED_LIST || (EMPTY_INDEXED_DOUBLY_LINKED_LIST = makeIndexedDoublyLinkedList(Map()));
+export const emptyLinkedMap = () => {
+  return EMPTY_INDEXED_DOUBLY_LINKED_LIST || (EMPTY_INDEXED_DOUBLY_LINKED_LIST = makeLinkedMap(Map()));
 }
 
-const updateIndexedDoublyLinkedList = (dlList, k, v) => {
+const updateLinkedMap = (dlList, k, v) => {
 
 }
 

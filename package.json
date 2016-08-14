@@ -1,5 +1,5 @@
 {
-  "name": "indexed-doubly-linked-list",
+  "name": "linked-map",
   "version": "1.0.0",
   "description": "",
   "main": "build/index.js",
@@ -13,14 +13,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/IdeaFlowCo/IndexedDoublyLinkedList.git"
+    "url": "git+https://github.com/IdeaFlowCo/LinkedMap.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/IdeaFlowCo/IndexedDoublyLinkedList/issues"
+    "url": "https://github.com/IdeaFlowCo/LinkedMap/issues"
   },
-  "homepage": "https://github.com/IdeaFlowCo/IndexedDoublyLinkedList#readme",
+  "homepage": "https://github.com/IdeaFlowCo/LinkedMap#readme",
   "devDependencies": {
     "acorn": "0.11.0",
     "babel-cli": "^6.11.4",
