@@ -1,5 +1,8 @@
 node {
-  checkout scm
-  sh "npm install"
-  sh "npm test"
+  stage "Checkout"
+	checkout scm
+  stage "Build"
+	sh "docker build -t ideaflow/LinkedMap ."
+  stage "Test"
+	sh "docker run ideaflow/LinkedMap"
 }
