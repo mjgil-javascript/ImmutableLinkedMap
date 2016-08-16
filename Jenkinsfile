@@ -2,7 +2,7 @@ node {
   stage "Checkout"
 	checkout scm
   stage "Build"
-	sh "docker build -t ideaflow/LinkedMap ."
+	sh "docker build -t ideaflow/linkedmap ."
   stage "Test"
-	sh "docker run ideaflow/LinkedMap"
+	sh "docker run ideaflow/linkedmap"
 }
