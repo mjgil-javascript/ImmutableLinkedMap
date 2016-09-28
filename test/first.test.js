@@ -1,6 +1,8 @@
 import { LinkedMap } from '../build/index.js'
 import { Map } from 'immutable'
-import { expect } from 'chai'
+import chai, { expect }  from 'chai'
+import chaiImmutable from 'chai-immutable'
+chai.use(chaiImmutable)
 
 const value1 = Map({id: 1, name: 'one'})
 const value2 = Map({id: 2, name: 'two'})
@@ -81,7 +83,6 @@ describe('LinkedMap', () => {
       expect(mapped.get(2)).to.equal('malcom')
       expect(mapped.get(3)).to.equal('malcom')
     })
-
   })
 
   describe('get', () => {
@@ -95,7 +96,65 @@ describe('LinkedMap', () => {
       expect(threeLinked.next().get()).to.equal(value2)
       expect(threeLinked.next().next().get()).to.equal(value3)
     })
+    it('should respect notSetValue', () => {
+      expect(emptyLinkedMap.get('fsfs', 'malcom')).to.equal('malcom')
+      expect(emptyLinkedMap.get('dddd', 'fggsdg')).to.equal('fggsdg')
+    })
   })
 
+  describe('set', () => {
+    it('should set values correctly', () => {
+      expect(threeLinked.set(1, 'malcom').get(1)).to.equal('malcom')
+      expect(threeLinked.set(2, 'malcom').get(2)).to.equal('malcom')
+      expect(threeLinked.set(3, 'malcom').get(3)).to.equal('malcom')
+    })
+  })
+
+  describe('setIn', () => {
+    it('should set nested values correctly', () => {
+      expect(threeLinked.setIn([1], 'malcom').get(1)).to.equal('malcom')
+      expect(threeLinked.setIn([1,'name'], 'malcom').get()).to.equal(value1.set('name', 'malcom'))
+    })
+  })
+
+  describe('next', () => {
+    it('should move to the next value', () => {
+      expect(threeLinked.get()).to.equal(value1)
+      expect(threeLinked.next().get()).to.equal(value2)
+      expect(threeLinked.next().next().get()).to.equal(value3)
+    })
+  })
+
+  describe('prev', () => {
+    it('should move to the previous value', () => {
+      expect(threeLinked.moveToEnd().get()).to.equal(value3)
+      expect(threeLinked.moveToEnd().prev().get()).to.equal(value2)
+      expect(threeLinked.moveToEnd().prev().prev().get()).to.equal(value1)
+    })
+  })
+
+  describe('moveTo', () => {
+    it('should move to an id', () => {
+      expect(threeLinked.moveTo(1).get()).to.equal(value1)
+      expect(threeLinked.moveTo(2).get()).to.equal(value2)
+      expect(threeLinked.moveTo(3).get()).to.equal(value3)
+    })
+  })
+
+  describe('moveToEnd', () => {
+    it('should move to end', () => {
+      expect(oneLinked.moveToEnd().get()).to.equal(value1)
+      expect(twoLinked.moveToEnd().get()).to.equal(value2)
+      expect(threeLinked.moveToEnd().get()).to.equal(value3)
+    })
+  })
+
+  describe('moveToStart', () => {
+    it('should move to start', () => {
+      expect(oneLinked.moveToEnd().moveToStart().get()).to.equal(value1)
+      expect(twoLinked.moveToEnd().moveToStart().get()).to.equal(value1)
+      expect(threeLinked.moveToEnd().moveToStart().get()).to.equal(value1)
+    })
+  })
 
 })
