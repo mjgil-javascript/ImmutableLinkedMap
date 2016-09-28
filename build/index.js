@@ -138,12 +138,12 @@
     };
 
     LinkedMap.prototype.toString = function() {
-      return this.__toString('Doubly Linked List [', ']')
+      return this.__toString('LinkedMap [', ']')
     };
 
     LinkedMap.prototype.get = function(valueId, notSetValue) {
       // notImplementedError('get')
-      var itemId = typeof valueId === undefined ? this._currentItemId : valueId
+      var itemId = typeof valueId === 'undefined' ? this._currentItemId : valueId
       var item = getItemById(this._itemsById, itemId)
       if (item) {
         return item.get('value')
@@ -774,9 +774,9 @@
   }
 
   // singleton pattern
-  var EMPTY_INDEXED_DOUBLY_LINKED_LIST;
+  var EMPTY_LINKED_MAP;
   var emptyLinkedMap = function()  {
-    return EMPTY_INDEXED_DOUBLY_LINKED_LIST || (EMPTY_INDEXED_DOUBLY_LINKED_LIST = makeLinkedMap(immutable.Map()));
+    return EMPTY_LINKED_MAP || (EMPTY_LINKED_MAP = makeLinkedMap(immutable.Map()));
   }
 
   exports.LinkedMap = LinkedMap;

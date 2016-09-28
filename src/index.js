@@ -45,12 +45,12 @@ export class LinkedMap extends Collection.Keyed {
   }
 
   toString() {
-    return this.__toString('Doubly Linked List [', ']')
+    return this.__toString('LinkedMap [', ']')
   }
 
   get(valueId, notSetValue) {
     // notImplementedError('get')
-    const itemId = typeof valueId === undefined ? this._currentItemId : valueId
+    const itemId = typeof valueId === 'undefined' ? this._currentItemId : valueId
     const item = getItemById(this._itemsById, itemId)
     if (item) {
       return item.get('value')
