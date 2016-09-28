@@ -4,12 +4,12 @@
   "description": "",
   "main": "build/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "babel-node test/index.test.js",
     "prebuild": "rimraf build && mkdir build",
     "build": "node compile.js",
     "start": "node build/index.js",
     "pretest": "npm run build",
-    "test": "babel-node test/index.test.js"
+    "test:mocha": "mocha mocha --require source-map-support/register --compilers js:babel-core/register --timeout 10000 test/first.test.js"
   },
   "repository": {
     "type": "git",
@@ -24,13 +24,17 @@
   "devDependencies": {
     "acorn": "0.11.0",
     "babel-cli": "^6.11.4",
+    "babel-core": "^6.16.0",
     "babel-preset-es2015": "6.13.2",
     "babel-preset-stage-2": "6.13.0",
     "es6-transpiler": "0.7.18",
     "estraverse": "1.9.3",
     "immutable": "3.8.1",
     "magic-string": "0.10.2",
+    "mocha": "^3.1.0",
     "rimraf": "^2.5.4",
-    "rollup": "0.24.0"
-  }
+    "rollup": "0.24.0",
+    "source-map-support": "^0.4.2"
+  },
+  "dependencies": {}
 }
