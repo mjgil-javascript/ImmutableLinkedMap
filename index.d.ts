@@ -126,7 +126,7 @@ export interface LinkedMap<K, V> extends Collection.Keyed<K, V> {
        *
        */
       mapKeys<M>(
-        mapper: (key?: K, value?: V, iter?: /*this*/Iterable.Keyed<K, V>) => M,
+        mapper: (key: K, value: V, iter?: /*this*/Iterable.Keyed<K, V>) => M,
         context?: any
       ): /*this*/Iterable.Keyed<M, V>;
 
@@ -141,8 +141,8 @@ export interface LinkedMap<K, V> extends Collection.Keyed<K, V> {
        */
       mapEntries<KM, VM>(
         mapper: (
-          entry?: /*(K, V)*/Array<any>,
-          index?: number,
+          entry: /*(K, V)*/Array<any>,
+          index: number,
           iter?: /*this*/Iterable.Keyed<K, V>
         ) => /*[KM, VM]*/Array<any>,
         context?: any
@@ -308,7 +308,7 @@ export interface LinkedMap<K, V> extends Collection.Keyed<K, V> {
        * provided predicate function. Otherwise -1 is returned.
        */
       findIndex(
-        predicate: (value?: T, index?: number, iter?: /*this*/Iterable.Indexed<T>) => boolean,
+        predicate: (value: T, index: number, iter?: /*this*/Iterable.Indexed<T>) => boolean,
         context?: any
       ): number;
 
@@ -317,7 +317,7 @@ export interface LinkedMap<K, V> extends Collection.Keyed<K, V> {
        * provided predicate function. Otherwise -1 is returned.
        */
       findLastIndex(
-        predicate: (value?: T, index?: number, iter?: /*this*/Iterable.Indexed<T>) => boolean,
+        predicate: (value: T, index: number, iter?: /*this*/Iterable.Indexed<T>) => boolean,
         context?: any
       ): number;
     }
@@ -638,7 +638,7 @@ export interface LinkedMap<K, V> extends Collection.Keyed<K, V> {
      *
      */
     map<M>(
-      mapper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => M,
+      mapper: (value: V, key: K, iter?: /*this*/Iterable<K, V>) => M,
       context?: any
     ): /*this*/Iterable<K, M>;
 
@@ -651,7 +651,7 @@ export interface LinkedMap<K, V> extends Collection.Keyed<K, V> {
      *
      */
     filter(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value: V, key: K, iter?: /*this*/Iterable<K, V>) => boolean,
       context?: any
     ): /*this*/Iterable<K, V>;
 
@@ -664,7 +664,7 @@ export interface LinkedMap<K, V> extends Collection.Keyed<K, V> {
      *
      */
     filterNot(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value: V, key: K, iter?: /*this*/Iterable<K, V>) => boolean,
       context?: any
     ): /*this*/Iterable<K, V>;
 
@@ -700,7 +700,7 @@ export interface LinkedMap<K, V> extends Collection.Keyed<K, V> {
      *
      */
     sortBy<C>(
-      comparatorValueMapper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => C,
+      comparatorValueMapper: (value: V, key: K, iter?: /*this*/Iterable<K, V>) => C,
       comparator?: (valueA: C, valueB: C) => number
     ): /*this*/Iterable<K, V>;
 
@@ -711,7 +711,7 @@ export interface LinkedMap<K, V> extends Collection.Keyed<K, V> {
      * Note: This is always an eager operation.
      */
     groupBy<G>(
-      grouper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => G,
+      grouper: (value: V, key: K, iter?: /*this*/Iterable<K, V>) => G,
       context?: any
     ): /*Map*/Seq.Keyed<G, /*this*/Iterable<K, V>>;
 
@@ -726,7 +726,7 @@ export interface LinkedMap<K, V> extends Collection.Keyed<K, V> {
      * (including the last iteration which returned false).
      */
     forEach(
-      sideEffect: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => any,
+      sideEffect: (value: V, key: K, iter?: /*this*/Iterable<K, V>) => any,
       context?: any
     ): number;
 
@@ -785,7 +785,7 @@ export interface LinkedMap<K, V> extends Collection.Keyed<K, V> {
      *
      */
     skipWhile(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value: V, key: K, iter?: /*this*/Iterable<K, V>) => boolean,
       context?: any
     ): /*this*/Iterable<K, V>;
 
@@ -799,7 +799,7 @@ export interface LinkedMap<K, V> extends Collection.Keyed<K, V> {
      *
      */
     skipUntil(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value: V, key: K, iter?: /*this*/Iterable<K, V>) => boolean,
       context?: any
     ): /*this*/Iterable<K, V>;
 
@@ -825,7 +825,7 @@ export interface LinkedMap<K, V> extends Collection.Keyed<K, V> {
      *
      */
     takeWhile(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value: V, key: K, iter?: /*this*/Iterable<K, V>) => boolean,
       context?: any
     ): /*this*/Iterable<K, V>;
 
@@ -838,7 +838,7 @@ export interface LinkedMap<K, V> extends Collection.Keyed<K, V> {
      *
      */
     takeUntil(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value: V, key: K, iter?: /*this*/Iterable<K, V>) => boolean,
       context?: any
     ): /*this*/Iterable<K, V>;
 
@@ -876,11 +876,11 @@ export interface LinkedMap<K, V> extends Collection.Keyed<K, V> {
      * Similar to `iter.map(...).flatten(true)`.
      */
     flatMap<MK, MV>(
-      mapper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => Iterable<MK, MV>,
+      mapper: (value: V, key: K, iter?: /*this*/Iterable<K, V>) => Iterable<MK, MV>,
       context?: any
     ): /*this*/Iterable<MK, MV>;
     flatMap<MK, MV>(
-      mapper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => /*iterable-like*/any,
+      mapper: (value: V, key: K, iter?: /*this*/Iterable<K, V>) => /*iterable-like*/any,
       context?: any
     ): /*this*/Iterable<MK, MV>;
 
@@ -897,7 +897,7 @@ export interface LinkedMap<K, V> extends Collection.Keyed<K, V> {
      * @see `Array#reduce`.
      */
     reduce<R>(
-      reducer: (reduction?: R, value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => R,
+      reducer: (reduction?: R, value: V, key: K, iter?: /*this*/Iterable<K, V>) => R,
       initialReduction?: R,
       context?: any
     ): R;
@@ -909,7 +909,7 @@ export interface LinkedMap<K, V> extends Collection.Keyed<K, V> {
      * with `Array#reduceRight`.
      */
     reduceRight<R>(
-      reducer: (reduction?: R, value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => R,
+      reducer: (reduction?: R, value: V, key: K, iter?: /*this*/Iterable<K, V>) => R,
       initialReduction?: R,
       context?: any
     ): R;
@@ -918,7 +918,7 @@ export interface LinkedMap<K, V> extends Collection.Keyed<K, V> {
      * True if `predicate` returns true for all entries in the Iterable.
      */
     every(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value: V, key: K, iter?: /*this*/Iterable<K, V>) => boolean,
       context?: any
     ): boolean;
 
@@ -926,7 +926,7 @@ export interface LinkedMap<K, V> extends Collection.Keyed<K, V> {
      * True if `predicate` returns true for any entry in the Iterable.
      */
     some(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value: V, key: K, iter?: /*this*/Iterable<K, V>) => boolean,
       context?: any
     ): boolean;
 
@@ -956,7 +956,7 @@ export interface LinkedMap<K, V> extends Collection.Keyed<K, V> {
      */
     count(): number;
     count(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value: V, key: K, iter?: /*this*/Iterable<K, V>) => boolean,
       context?: any
     ): number;
 
@@ -967,7 +967,7 @@ export interface LinkedMap<K, V> extends Collection.Keyed<K, V> {
      * Note: This is not a lazy operation.
      */
     countBy<G>(
-      grouper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => G,
+      grouper: (value: V, key: K, iter?: /*this*/Iterable<K, V>) => G,
       context?: any
     ): Map<G, number>;
 
@@ -978,7 +978,7 @@ export interface LinkedMap<K, V> extends Collection.Keyed<K, V> {
      * Returns the first value for which the `predicate` returns true.
      */
     find(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value: V, key: K, iter?: /*this*/Iterable<K, V>) => boolean,
       context?: any,
       notSetValue?: V
     ): V;
@@ -989,7 +989,7 @@ export interface LinkedMap<K, V> extends Collection.Keyed<K, V> {
      * Note: `predicate` will be called for each entry in reverse.
      */
     findLast(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value: V, key: K, iter?: /*this*/Iterable<K, V>) => boolean,
       context?: any,
       notSetValue?: V
     ): V;
@@ -998,7 +998,7 @@ export interface LinkedMap<K, V> extends Collection.Keyed<K, V> {
      * Returns the first [key, value] entry for which the `predicate` returns true.
      */
     findEntry(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value: V, key: K, iter?: /*this*/Iterable<K, V>) => boolean,
       context?: any,
       notSetValue?: V
     ): /*[K, V]*/Array<any>;
@@ -1010,7 +1010,7 @@ export interface LinkedMap<K, V> extends Collection.Keyed<K, V> {
      * Note: `predicate` will be called for each entry in reverse.
      */
     findLastEntry(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => boolean,
+      predicate: (value: V, key: K, iter?: /*this*/Iterable<K, V>) => boolean,
       context?: any,
       notSetValue?: V
     ): /*[K, V]*/Array<any>;
@@ -1019,7 +1019,7 @@ export interface LinkedMap<K, V> extends Collection.Keyed<K, V> {
      * Returns the key for which the `predicate` returns true.
      */
     findKey(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable.Keyed<K, V>) => boolean,
+      predicate: (value: V, key: K, iter?: /*this*/Iterable.Keyed<K, V>) => boolean,
       context?: any
     ): K;
 
@@ -1029,7 +1029,7 @@ export interface LinkedMap<K, V> extends Collection.Keyed<K, V> {
      * Note: `predicate` will be called for each entry in reverse.
      */
     findLastKey(
-      predicate: (value?: V, key?: K, iter?: /*this*/Iterable.Keyed<K, V>) => boolean,
+      predicate: (value: V, key: K, iter?: /*this*/Iterable.Keyed<K, V>) => boolean,
       context?: any
     ): K;
 
@@ -1068,7 +1068,7 @@ export interface LinkedMap<K, V> extends Collection.Keyed<K, V> {
      *
      */
     maxBy<C>(
-      comparatorValueMapper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => C,
+      comparatorValueMapper: (value: V, key: K, iter?: /*this*/Iterable<K, V>) => C,
       comparator?: (valueA: C, valueB: C) => number
     ): V;
 
@@ -1097,7 +1097,7 @@ export interface LinkedMap<K, V> extends Collection.Keyed<K, V> {
      *
      */
     minBy<C>(
-      comparatorValueMapper: (value?: V, key?: K, iter?: /*this*/Iterable<K, V>) => C,
+      comparatorValueMapper: (value: V, key: K, iter?: /*this*/Iterable<K, V>) => C,
       comparator?: (valueA: C, valueB: C) => number
     ): V;
 
