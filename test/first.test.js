@@ -263,4 +263,65 @@ describe('LinkedMap', () => {
     })
   })
 
+  describe('delete', () => {
+    it('should delete entries by id', () => {
+      expect(threeLinked.delete(3)).to.equal(twoLinked)
+      expect(threeLinked.delete(3).delete(2)).to.equal(oneLinked)
+    })
+    it('should handle removing from the front correctly', () => {
+      expect(threeLinked.delete(1).first()).to.equal(value2)
+      expect(twoLinked.delete(1).first()).to.equal(value2)
+    })
+    it('should handle removing from the back correctly', () => {
+      expect(threeLinked.delete(3).last()).to.equal(value2)
+      expect(twoLinked.delete(2).last()).to.equal(value1)
+    })
+  })
+
+  describe('remove', () => {
+    it('should remove entries by id', () => {
+      expect(threeLinked.remove(3)).to.equal(twoLinked)
+      expect(threeLinked.remove(3).remove(2)).to.equal(oneLinked)
+    })
+    it('should handle removing from the front correctly', () => {
+      expect(threeLinked.remove(1).first()).to.equal(value2)
+      expect(twoLinked.remove(1).first()).to.equal(value2)
+    })
+    it('should handle removing from the back correctly', () => {
+      expect(threeLinked.remove(3).last()).to.equal(value2)
+      expect(twoLinked.remove(2).last()).to.equal(value1)
+    })
+  })
+
+  describe('shift', () => {
+    it('should remove stuff from the front', () => {
+      expect(threeLinked.shift()).to.equal(LinkedMap([[2, value2], [3, value3]]))
+      expect(threeLinked.shift().shift()).to.equal(LinkedMap([[3, value3]]))
+    })
+    it('should handle removing from the front correctly', () => {
+      expect(threeLinked.shift().first()).to.equal(value2)
+      expect(twoLinked.shift().first()).to.equal(value2)
+    })
+  })
+
+  describe('pop', () => {
+    it('should remove stuff from the back', () => {
+      expect(threeLinked.pop()).to.equal(twoLinked)
+      expect(twoLinked.pop()).to.equal(oneLinked)
+    })
+    it('should handle removing from the back correctly', () => {
+      expect(threeLinked.pop().last()).to.equal(value2)
+      expect(twoLinked.pop().last()).to.equal(value1)
+    })
+  })
+
+  describe('prepend', () => {
+    it('should prepend things to the front', () => {
+      expect(oneLinked.prepend(value2, 2)).to.equal(LinkedMap([[2, value2], [1, value1]]))
+    })
+    it('should make first work correctly', () => {
+      expect(oneLinked.prepend(value2, 2).first()).to.equal(value2)
+    })
+  })
+
 })
