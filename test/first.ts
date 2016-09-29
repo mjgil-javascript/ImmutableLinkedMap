@@ -368,46 +368,10 @@ describe('LinkedMap', () => {
 
   describe('values', () => {
     it('should extract the values', () => {
+      console.log(Map({1:'one'}).values())
       const arr = []
-      const values = twoLinked.values()
-      let next = values.next()
-      while (!next.done) {
-        arr.push(next.value)
-        next = values.next()
-      }
+      twoLinked.values().toSeq().forEach(val => arr.push(val))
       expect(arr).to.deep.equal([value1,value2])
-    })
-  })
-
-  describe('getBetween', () => {
-    it('should get element between but not including', () => {
-      expect(fourLinked.getBetween(1,4)).to.equal(LinkedMap([[2,value2],[3,value3]]))
-      expect(fourLinked.getBetween(1,4).first()).to.equal(value2)
-      expect(fourLinked.getBetween(1,4).last()).to.equal(value3)
-    })
-    it('should get element between but not including end', () => {
-      expect(fourLinked.getBetween(1,4,true)).to.equal(LinkedMap([[1,value1],[2,value2],[3,value3]]))
-    })
-    it('should get element between including ends', () => {
-      expect(fourLinked.getBetween(1,4,true,true)).to.equal(LinkedMap([[1,value1],[2,value2],[3,value3],[4,value4]]))
-    })
-  })
-
-  describe('getAfter', () => {
-    it('should get the value after', () => {
-      expect(fourLinked.getAfter(1)).to.equal(value2)
-      expect(fourLinked.getAfter(2)).to.equal(value3)
-      expect(fourLinked.getAfter(3)).to.equal(value4)
-      expect(fourLinked.getAfter(4)).to.equal(undefined)
-    })
-  })
-
-  describe('getBefore', () => {
-    it('should get the value before', () => {
-      expect(fourLinked.getBefore(1)).to.equal(undefined)
-      expect(fourLinked.getBefore(2)).to.equal(value1)
-      expect(fourLinked.getBefore(3)).to.equal(value2)
-      expect(fourLinked.getBefore(4)).to.equal(value3)
     })
   })
 
