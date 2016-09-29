@@ -411,4 +411,36 @@ describe('LinkedMap', () => {
     })
   })
 
+  describe('deleteBetween', () => {
+    it('should delete between not including', () => {
+      expect(fourLinked.deleteBetween(1,4)).to.equal(LinkedMap([[1,value1],[4,value4]]))
+    })
+    it('should delete between not including end', () => {
+      expect(fourLinked.deleteBetween(1,4,true)).to.equal(LinkedMap([[4,value4]]))
+    })
+    it('should delete between including', () => {
+      expect(fourLinked.deleteBetween(1,4,true,true)).to.equal(LinkedMap())
+    })
+  })
+
+  describe('pushMany', () => {
+    it('should push many when there are no key collisions', () => {
+      expect(fourLinked.getBetween(2,4).pushMany(twoLinked)).to.equal(LinkedMap([[3,value3],[1,value1],[2,value2]]))
+    })
+  })
+
+  describe('concat', () => {
+    it('should concat with no key collisions', () => {
+      expect(twoLinked.concat(LinkedMap([[3,value3],[4,value4]]))).to.equal(fourLinked)
+    })
+  })
+
+  describe('popMany', () => {
+    it('should remove values from the end', () => {
+      expect(fourLinked.popMany(1)).to.equal(threeLinked)
+      expect(fourLinked.popMany(2)).to.equal(twoLinked)
+      expect(fourLinked.popMany(3)).to.equal(oneLinked)
+    })
+  })
+
 })
