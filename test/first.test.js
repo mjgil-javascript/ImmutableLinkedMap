@@ -187,7 +187,16 @@ describe('LinkedMap', () => {
   })
 
   describe('valueOf', () => {
-
+    it('should have the same value for the same object', () => {
+      expect(emptyLinkedMap.valueOf()).to.equal(emptyLinkedMap.valueOf())
+      expect(oneLinked.valueOf()).to.equal(oneLinked.valueOf())
+      expect(twoLinked.valueOf()).to.equal(twoLinked.valueOf())
+    })
+    it('should have the same value for equivalent structures', () => {
+      expect(emptyLinkedMap.valueOf()).to.equal(LinkedMap())
+      expect(oneLinked.valueOf()).to.equal(LinkedMap(oneMap))
+      expect(twoLinked.valueOf()).to.equal(LinkedMap(twoMap))
+    })
   })
 
   describe('equals', () => {
@@ -215,6 +224,20 @@ describe('LinkedMap', () => {
     it('should be the same in regards to immutable', () => {
       expect(threeLinked.copy() === threeLinked).to.equal(false)
       expect(threeLinked.copy()).to.equal(threeLinked)
+    })
+  })
+
+  describe('reduce', () => {
+    it('should work like regular reduce', () => {
+      expect(threeLinked.reduce((concatString, val) => concatString + val.get('name'), '')).to.equal('onetwothree')
+      expect(threeLinked.reduce((concatString, val, key) => concatString + key + val.get('name'), '')).to.equal('1one2two3three')
+    })
+  })
+
+  describe('reduceRight', () => {
+    it('should work like regular reduceRight', () => {
+      expect(threeLinked.reduceRight((concatString, val) => concatString + val.get('name'), '')).to.equal('threetwoone')
+      expect(threeLinked.reduceRight((concatString, val, key) => concatString + key + val.get('name'), '')).to.equal('3three2two1one')
     })
   })
 
