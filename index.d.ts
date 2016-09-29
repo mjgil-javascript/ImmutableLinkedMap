@@ -25,12 +25,12 @@ export module LinkedMap {
    * iterable-like.
    */
   export function LinkedMap<K, V>(): LinkedMap<K, V>;
-  export function LinkedMap<K, V>(iter: Iterable.Indexed<any>): LinkedMap<number, any>;
-  export function LinkedMap<K, V>(iter: Iterable.Set<any>): LinkedMap<any, any>;
-  export function LinkedMap<K, V>(iter: Iterable.Keyed<K, V>): LinkedMap<K,V>;
-  export function LinkedMap<K, V>(array: Array<any>): LinkedMap<any, any>;
-  export function LinkedMap<K, V>(iterator: Iterator<T>): LinkedMap<number, any>;
-  export function LinkedMap<K, V>(iterable: /*Iterable<T>*/Object): LinkedMap<any, any>;
+  export function LinkedMap<K, V>(iter: Iterable.Indexed<V>): LinkedMap<number, V>;
+  export function LinkedMap<K, V>(iter: Iterable.Set<V>): LinkedMap<K, V>;
+  export function LinkedMap<K, V>(iter: Iterable.Keyed<K, V>): LinkedMap<K, V>;
+  export function LinkedMap<K, V>(array: Array<any>): LinkedMap<K, V>;
+  export function LinkedMap<K, V>(iterator: Iterator<V>): LinkedMap<number, V>;
+  export function LinkedMap<K, V>(iterable: /*Iterable<T>*/Object): LinkedMap<K, V>;
 
 
 export interface LinkedMap<K, V> extends Collection.Keyed<K, V> {
@@ -46,7 +46,7 @@ export interface LinkedMap<K, V> extends Collection.Keyed<K, V> {
   prepend(value: V, key: K): LinkedMap<K, V>;
   unshift(value: V): LinkedMap<K, V>;
   shift(): LinkedMap<K, V>;
-  concat(value: LinkedMap<K, V>): LinkedMap<any, any>;
+  concat(value: LinkedMap<K, V>): LinkedMap<K, V>;
   swap(key1: K, key2: K): LinkedMap<K, V>;
   insertAfter(key: K, value: V, key2: K): LinkedMap<K, V>;
   insertManyAfter(afterKey: K, value: Array<V>): LinkedMap<K, V>;
@@ -55,17 +55,17 @@ export interface LinkedMap<K, V> extends Collection.Keyed<K, V> {
   getAfter(key: K): LinkedMap<K, V>;
   getBefore(key: K): LinkedMap<K, V>;
   reverse(): LinkedMap<K, V>;
-  first(): LinkedMap<K, V>;
-  last(): LinkedMap<K, V>;
+  first(): V;
+  last(): V;
   deleteBetween(startKey: K, endKey: K, includeStart: boolean, includeEnd: boolean): LinkedMap<K, V>;
   next(): LinkedMap<K, V>;
   prev(): LinkedMap<K, V>;
   moveTo(key: K): LinkedMap<K, V>;
   moveToStart(): LinkedMap<K, V>;
   moveToEnd(): LinkedMap<K, V>;
-  equals(linkedMap: LinkedMap<K, V>): LinkedMap<K, V>;
+  equals(linkedMap: LinkedMap<K, V>): boolean;
   clear(): LinkedMap<K, V>;
-  toJS(): Array<T>;
+  toJS(): [];
   copy(): LinkedMap<K, V>;
 }
 
