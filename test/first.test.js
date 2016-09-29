@@ -17,6 +17,14 @@ let twoLinked = addToList(value2, oneLinked)
 let threeLinked = addToList(value3, twoLinked)
 let fourLinked = addToList(value4, threeLinked)
 
+let oneJs = [[1,{id:1, name:'one'}]]
+let twoJs = [[1,{id:1, name:'one'}], [2,{id:2, name:'two'}]]
+let threeJs = [[1,{id:1, name:'one'}], [2,{id:2, name:'two'}], [3,{id:3, name:'three'}]]
+
+let oneMap = [[1, value1]]
+let twoMap = [[1, value1], [2, value2]]
+let threeMap = [[1, value1], [2, value2], [3, value3]]
+
 describe('LinkedMap', () => {
   describe('constructor', () => {
     it('should return same linked map if passed in a linked map', () => {
@@ -117,6 +125,18 @@ describe('LinkedMap', () => {
     })
   })
 
+  describe('update', () => {
+    it('should update the value', () => {
+      expect(threeLinked.update(2, val => val.get('name')).get(2)).to.equal('two')
+    })
+  })
+
+  describe('updateIn', () => {
+    it('should update nested values', () => {
+      expect(threeLinked.updateIn([2, 'name'], val => val + val).get(2)).to.equal(value2.set('name', 'twotwo'))
+    })
+  })
+
   describe('next', () => {
     it('should move to the next value', () => {
       expect(threeLinked.get()).to.equal(value1)
@@ -154,6 +174,47 @@ describe('LinkedMap', () => {
       expect(oneLinked.moveToEnd().moveToStart().get()).to.equal(value1)
       expect(twoLinked.moveToEnd().moveToStart().get()).to.equal(value1)
       expect(threeLinked.moveToEnd().moveToStart().get()).to.equal(value1)
+    })
+  })
+
+  describe('clear', () => {
+    it('should return the same if its empty', () => {
+      expect(emptyLinkedMap.clear() === emptyLinkedMap).to.equal(true)
+    })
+    it('should return an empty if it has stuff', () => {
+      expect(threeLinked.clear() === emptyLinkedMap).to.equal(true)
+    })
+  })
+
+  describe('valueOf', () => {
+
+  })
+
+  describe('equals', () => {
+    it('should be equal for same values inputted', () => {
+      expect(emptyLinkedMap.equals(LinkedMap())).to.equal(true)
+      expect(oneLinked.equals(LinkedMap(oneMap))).to.equal(true)
+      expect(twoLinked.equals(LinkedMap(twoMap))).to.equal(true)
+      expect(threeLinked.equals(LinkedMap(threeMap))).to.equal(true)
+    })
+  })
+
+  describe('toJS', () => {
+    it('should output a list of tuples by default', () => {
+      expect(emptyLinkedMap.toJS()).to.deep.equal([])
+      expect(oneLinked.toJS()).to.deep.equal(oneJs)
+      expect(twoLinked.toJS()).to.deep.equal(twoJs)
+      expect(threeLinked.toJS()).to.deep.equal(threeJs)
+    })
+  })
+
+  describe('copy', () => {
+    it('should have the same string representation', () => {
+      expect(threeLinked.copy().toString()).to.equal(threeLinked.toString())
+    })
+    it('should be the same in regards to immutable', () => {
+      expect(threeLinked.copy() === threeLinked).to.equal(false)
+      expect(threeLinked.copy()).to.equal(threeLinked)
     })
   })
 

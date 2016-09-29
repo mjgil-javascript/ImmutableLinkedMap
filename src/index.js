@@ -370,6 +370,11 @@ export class LinkedMap extends Collection.Keyed {
     return updateCurrentItemId(this, this._lastItemId)
   }
 
+  equals(linked2) {
+    if (!isLinkedMap(linked2)) return false
+    return this._itemsById.equals(linked2._itemsById)
+  }
+
   clear() {
     if (this.size === 0) {
       return this;
@@ -385,6 +390,13 @@ export class LinkedMap extends Collection.Keyed {
       return this;
     }
     return emptyLinkedMap();
+  }
+
+  toJS() {
+    return this.reduce((arr, val, key) => {
+      arr.push([key, (typeof val.toJS === 'function' ? val.toJS() : val)])
+      return arr
+    }, [])
   }
 
   copy() {

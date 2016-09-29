@@ -463,6 +463,11 @@
       return updateCurrentItemId(this, this._lastItemId)
     };
 
+    LinkedMap.prototype.equals = function(linked2) {
+      if (!isLinkedMap(linked2)) return false
+      return this._itemsById.equals(linked2._itemsById)
+    };
+
     LinkedMap.prototype.clear = function() {
       if (this.size === 0) {
         return this;
@@ -478,6 +483,13 @@
         return this;
       }
       return emptyLinkedMap();
+    };
+
+    LinkedMap.prototype.toJS = function() {
+      return this.reduce(function(arr, val, key)  {
+        arr.push([key, (typeof val.toJS === 'function' ? val.toJS() : val)])
+        return arr
+      }, [])
     };
 
     LinkedMap.prototype.copy = function() {
