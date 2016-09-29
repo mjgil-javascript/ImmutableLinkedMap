@@ -1,5 +1,5 @@
 import { LinkedMap } from '../build/index.js'
-import { Map } from 'immutable'
+import { Map, List } from 'immutable'
 import chai, { expect }  from 'chai'
 import chaiImmutable from 'chai-immutable'
 chai.use(chaiImmutable)
@@ -238,6 +238,28 @@ describe('LinkedMap', () => {
     it('should work like regular reduceRight', () => {
       expect(threeLinked.reduceRight((concatString, val) => concatString + val.get('name'), '')).to.equal('threetwoone')
       expect(threeLinked.reduceRight((concatString, val, key) => concatString + key + val.get('name'), '')).to.equal('3three2two1one')
+    })
+  })
+
+  describe('forEach', () => {
+    const array = []
+    it('should work like regular forEach', () => {
+      threeLinked.forEach((val, key) => {
+        array.push([key, val])
+      })
+      expect(array).to.deep.equal(threeMap)
+    })
+  })
+
+  describe('toMap', () => {
+    it('should coerce to a map', () => {
+      expect(threeLinked.toMap()).to.equal(Map().set(1, value1).set(2, value2).set(3, value3))
+    })
+  })
+
+  describe('toList', () => {
+    it('should coerce to a list', () => {
+      expect(threeLinked.toList()).to.equal(List([value1, value2, value3]))
     })
   })
 
