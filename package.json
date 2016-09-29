@@ -22,7 +22,6 @@
   },
   "homepage": "https://github.com/IdeaFlowCo/LinkedMap#readme",
   "devDependencies": {
-    "@types/node": "^6.0.41",
     "acorn": "0.11.0",
     "babel-cli": "^6.11.4",
     "babel-core": "^6.16.0",
