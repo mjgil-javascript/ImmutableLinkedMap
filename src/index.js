@@ -105,7 +105,7 @@ export class LinkedMap extends Collection.Keyed {
     let newList = this
     const iter = Iterable.Keyed(value)
     assertNotInfinite(iter.size)
-    iter.forEach((v, k) => newList = newList.prepend(v, k))
+    iter.reverse().forEach((v, k) => newList = newList.prepend(v, k))
 
     return newList
   }

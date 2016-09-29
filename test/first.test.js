@@ -324,4 +324,32 @@ describe('LinkedMap', () => {
     })
   })
 
+  describe('unshift', () => {
+    it('should add values to the front', () => {
+      expect(oneLinked.unshift([[2, value2], [3, value3]])).to.equal(LinkedMap([[2, value2], [3, value3], [1, value1]]))
+    })
+  })
+
+  describe('insertAfter', () => {
+    it('should insert after an id', () => {
+      expect(twoLinked.insertAfter(1, value3, 4)).to.equal(LinkedMap([[1,value1],[4,value3],[2,value2]]))
+    })
+    it('should handle last correctly', () => {
+      expect(oneLinked.insertAfter(1, value3, 4).last()).to.equal(value3)
+    })
+  })
+
+  describe('insertBefore', () => {
+    it('should insert after an id', () => {
+      expect(twoLinked.insertBefore(1, value3, 4)).to.equal(LinkedMap([[4,value3],[1,value1],[2,value2]]))
+    })
+    it('should handle first correctly', () => {
+      expect(oneLinked.insertBefore(1, value3, 4).first()).to.equal(value3)
+    })
+  })
+
+  describe('swap', () => {
+    
+  })
+
 })

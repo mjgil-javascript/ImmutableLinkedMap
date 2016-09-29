@@ -198,7 +198,7 @@
       var newList = this
       var iter = immutable.Iterable.Keyed(value)
       assertNotInfinite(iter.size)
-      iter.forEach(function(v, k)  {return newList = newList.prepend(v, k)})
+      iter.reverse().forEach(function(v, k)  {return newList = newList.prepend(v, k)})
 
       return newList
     };
