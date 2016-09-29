@@ -36,6 +36,37 @@ export module LinkedMap {
 export interface LinkedMap<K, V> extends Collection.Keyed<K, V> {
   delete(key: K): LinkedMap<K, V>;
   remove(key: K): LinkedMap<K, V>;
+  toString(key: K): string;
+  get(key: K, notSetValue?:V): V;
+  set(key: K, value:V): LinkedMap<K, V>;
+  push(value: V, key: K): LinkedMap<K, V>;
+  pushMany(value: V): LinkedMap<K, V>;
+  pop(): LinkedMap<K, V>;
+  popMany(num: number): LinkedMap<K, V>;
+  prepend(value: V, key: K): LinkedMap<K, V>;
+  unshift(value: V): LinkedMap<K, V>;
+  shift(): LinkedMap<K, V>;
+  concat(value: LinkedMap<K, V>): LinkedMap<any, any>;
+  swap(key1: K, key2: K): LinkedMap<K, V>;
+  insertAfter(key: K, value: V, key2: K): LinkedMap<K, V>;
+  insertManyAfter(afterKey: K, value: Array<V>): LinkedMap<K, V>;
+  insertBefore(beforeKey: K, value: V, key: K): LinkedMap<K, V>;
+  getBetween(startKey: K, endKey: K, includeStart: boolean, includeEnd: boolean): LinkedMap<K, V>;
+  getAfter(key: K): LinkedMap<K, V>;
+  getBefore(key: K): LinkedMap<K, V>;
+  reverse(): LinkedMap<K, V>;
+  first(): LinkedMap<K, V>;
+  last(): LinkedMap<K, V>;
+  deleteBetween(startKey: K, endKey: K, includeStart: boolean, includeEnd: boolean): LinkedMap<K, V>;
+  next(): LinkedMap<K, V>;
+  prev(): LinkedMap<K, V>;
+  moveTo(key: K): LinkedMap<K, V>;
+  moveToStart(): LinkedMap<K, V>;
+  moveToEnd(): LinkedMap<K, V>;
+  equals(linkedMap: LinkedMap<K, V>): LinkedMap<K, V>;
+  clear(): LinkedMap<K, V>;
+  toJS(): Array<T>;
+  copy(): LinkedMap<K, V>;
 }
 
 /**
