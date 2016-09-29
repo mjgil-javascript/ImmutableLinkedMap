@@ -6,7 +6,7 @@
   "scripts": {
     "test:watch": "mocha --watch --require source-map-support/register --compilers js:babel-core/register --timeout 10000 test/**/first.test.js",
     "prebuild": "rimraf build && mkdir build",
-    "build": "node compile.js",
+    "build": "node compile.js && cp index.d.ts build/",
     "start": "node build/index.js",
     "pretest": "npm run build",
     "test": "mocha --require source-map-support/register --compilers js:babel-core/register --timeout 10000 test/**/first.test.js"
@@ -15,6 +15,9 @@
     "type": "git",
     "url": "git+https://github.com/IdeaFlowCo/LinkedMap.git"
   },
+  "typescript": {
+    "definition": "index.d.ts"
+  },
   "author": "",
   "license": "ISC",
   "bugs": {
@@ -22,6 +25,10 @@
   },
   "homepage": "https://github.com/IdeaFlowCo/LinkedMap#readme",
   "devDependencies": {
+  },
+  "dependencies": {
+    "@types/chai": "^3.4.34",
+    "@types/mocha": "^2.2.32",
     "acorn": "0.11.0",
     "babel-cli": "^6.11.4",
     "babel-core": "^6.16.0",
@@ -37,7 +44,5 @@
     "rimraf": "^2.5.4",
     "rollup": "0.24.0",
     "source-map-support": "^0.4.2",
-    "typescript": "^2.0.3"
-  },
-  "dependencies": {}
+    "typescript": "^2.0.3"}
 }
