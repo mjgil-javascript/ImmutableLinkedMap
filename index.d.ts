@@ -8,7 +8,7 @@ export module LinkedMap {
   /**
   * Creates a new List containing `values`.
   */
-  function of<T>(...values: T[]): LinkedMap<T>;
+  function of<T>(...values: T[]): LinkedMap<T, T>;
 }
 
   export module Iterable {
@@ -22,16 +22,16 @@ export module LinkedMap {
    * Create a new immutable List containing the values of the provided
    * iterable-like.
    */
-//   export function LinkedMap<T>(): LinkedMap<T>;
+  // export function LinkedMap<T>(): LinkedMap<T>;
 //   export function LinkedMap<T>(iter: Iterable.Indexed<T>): LinkedMap<T>;
 //   export function LinkedMap<T>(iter: Iterable.Set<T>): LinkedMap<T>;
-  export function LinkedMap<K, V>(iter: Iterable.Keyed<K, V>): LinkedMap</*[K,V]*/any>;
+  export function LinkedMap<K, V>(iter: Iterable.Keyed<K, V>): LinkedMap<K,V>;
 //   export function LinkedMap<T>(array: Array<T>): LinkedMap<T>;
 //   export function LinkedMap<T>(iterator: Iterator<T>): LinkedMap<T>;
 //   export function LinkedMap<T>(iterable: /*Iterable<T>*/Object): LinkedMap<T>;
 
 
 export interface LinkedMap<K, V> extends Collection.Keyed<K, V> {
-  delete(index: string): LinkedMap<K, V>;
-  remove(index: string): LinkedMap<K, V>;
+  delete(key: K): LinkedMap<K, V>;
+  remove(key: K): LinkedMap<K, V>;
 }
