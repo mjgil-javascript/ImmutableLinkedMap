@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/IdeaFlowCo/LinkedMap.git"
+    "url": "git+https://github.com/mjgil-javascript/LinkedMap.git"
   },
   "typescript": {
     "definition": "index.d.ts"
@@ -21,9 +21,9 @@
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/IdeaFlowCo/LinkedMap/issues"
+    "url": "https://github.com/mjgil-javascript/LinkedMap/issues"
   },
-  "homepage": "https://github.com/IdeaFlowCo/LinkedMap#readme",
+  "homepage": "https://github.com/mjgil-javascript/LinkedMap#readme",
   "devDependencies": {
   },
   "dependencies": {

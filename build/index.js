@@ -1,5 +1,5 @@
 /**
- *  Copyright (c) 2016, IdeaFlow, Inc.
+ *  Copyright (c) 2016, mjgil.
  *  All rights reserved.
  *
  */
