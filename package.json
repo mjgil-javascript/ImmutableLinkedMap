@@ -24,8 +24,7 @@
     "url": "https://github.com/mjgil-javascript/ImmutableLinkedMap/issues"
   },
   "homepage": "https://github.com/mjgil-javascript/ImmutableLinkedMap#readme",
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "dependencies": {
     "@types/chai": "^3.4.34",
     "@types/mocha": "^2.2.32",
@@ -44,5 +43,6 @@
     "rimraf": "^2.5.4",
     "rollup": "0.24.0",
     "source-map-support": "^0.4.2",
-    "typescript": "^2.0.3"}
+    "typescript": "^2.0.3"
+  }
 }

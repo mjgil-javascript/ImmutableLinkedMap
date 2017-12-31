@@ -53,7 +53,6 @@ rollup.rollup({
     }
 
     var transformed = transformResult.src;
-
     fs.writeFileSync('./build/index.js', transformed);
 
   //   var minifyResult = uglify.minify(transformed, {
@@ -79,4 +78,4 @@ rollup.rollup({
   //   grunt.log.error(error.stack);
   //   done(false);
   // });
-});
+}).catch(function(e) {console.log(e)});

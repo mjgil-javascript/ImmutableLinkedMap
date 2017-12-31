@@ -1,9 +1,8 @@
-/**
- *  Copyright (c) 2016, mjgil.
- *  All rights reserved.
- *
- */
-
+/**    
+*  Copyright (c) 2016-2018, Malcom Gilbert    
+*  All rights reserved.    
+*    
+*/
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('immutable')) :
   typeof define === 'function' && define.amd ? define(['exports', 'immutable'], factory) :
