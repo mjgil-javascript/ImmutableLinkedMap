@@ -9,7 +9,7 @@
     "build": "declassify src/index.js build/index.js COPYRIGHT ImmutableLinkedMap && cp index.d.ts build/",
     "start": "node build/index.js",
     "pretest": "npm run build",
-    "test": "mocha --require source-map-support/register --compilers js:babel-core/register --timeout 10000 test/**/first.test.js"
+    "test": "mocha --require source-map-support/register --compilers js:babel-core/register --timeout 10000 test/*test.js"
   },
   "repository": {
     "type": "git",
