@@ -6,7 +6,7 @@
   "scripts": {
     "test:watch": "mocha --watch --require source-map-support/register --compilers js:babel-core/register --timeout 10000 test/**/first.test.js",
     "prebuild": "rimraf build && mkdir build",
-    "build": "node compile.js && cp index.d.ts build/",
+    "build": "declassify src/index.js build/index.js COPYRIGHT ImmutableLinkedMap && cp index.d.ts build/",
     "start": "node build/index.js",
     "pretest": "npm run build",
     "test": "mocha --require source-map-support/register --compilers js:babel-core/register --timeout 10000 test/**/first.test.js"
@@ -24,7 +24,9 @@
     "url": "https://github.com/mjgil-javascript/ImmutableLinkedMap/issues"
   },
   "homepage": "https://github.com/mjgil-javascript/ImmutableLinkedMap#readme",
-  "devDependencies": {},
+  "devDependencies": {
+    "declassify": "git+https://git@github.com/mjgil-javascript/declassify.git#4194c66"
+  },
   "dependencies": {
     "@types/chai": "^3.4.34",
     "@types/mocha": "^2.2.32",

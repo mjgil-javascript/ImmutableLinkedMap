@@ -6,24 +6,8 @@
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('immutable')) :
   typeof define === 'function' && define.amd ? define(['exports', 'immutable'], factory) :
-  (factory((global.IndexedDoublyLinkedList = {}),global.immutable));
+  (factory((global.ImmutableLinkedMap = {}),global.immutable));
 }(this, function (exports,immutable) { 'use strict';
-
-  /**
-   *  Copyright (c) 2014-2015, Facebook, Inc.
-   *  All rights reserved.
-   *
-   *  This source code is licensed under the BSD-style license found in the
-   *  LICENSE file in the root directory of this source tree. An additional grant
-   *  of patent rights can be found in the PATENTS file in the same directory.
-   */
-
-  function createClass(ctor, superClass) {
-    if (superClass) {
-      ctor.prototype = Object.create(superClass.prototype);
-    }
-    ctor.prototype.constructor = ctor;
-  }
 
   /**
    *  Copyright (c) 2014-2015, Facebook, Inc.
@@ -98,6 +82,12 @@
     );
   }
 
+  function createClass(ctor, superClass) {
+    if (superClass) {
+      ctor.prototype = Object.create(superClass.prototype);
+    }
+    ctor.prototype.constructor = ctor;
+  }
   var itemNotFoundError = function(id)  {throw new Error('Item with id: ' + id + ' was not found')}
 
   createClass(LinkedMap, immutable.Collection.Keyed);
