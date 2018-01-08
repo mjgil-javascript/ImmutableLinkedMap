@@ -1,6 +1,5 @@
 # ImmutableLinkedMap
 
-[![Build Status](https://travis-ci.org/mjgil-javascript/ImmutableLinkedMap.svg)](https://travis-ci.org/mjgil-javascript/ImmutableLinkedMap)
 ![](https://img.shields.io/badge/license-MIT-blue.svg)
 
 
